@@ -1038,3 +1038,111 @@
   color: var(--default-text-base);
 }
 
+
+/* ---------- Review-complete celebration ---------- */
+
+.celebrate-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  animation: approve-fade 0.2s ease;
+}
+
+.celebrate-card {
+  position: relative;
+  width: 440px;
+  padding: 48px 40px 36px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.14);
+  text-align: center;
+  overflow: hidden;
+  animation: celebrate-pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+@keyframes celebrate-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.celebrate-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -16px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotateZ(0deg) rotateX(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 460px, 0) rotateZ(var(--spin, 540deg)) rotateX(720deg);
+    opacity: 0;
+  }
+}
+
+/* Reuses the approve-check draw animation; sized up as the hero mark. */
+.celebrate-check {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 20px;
+  animation: approve-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.celebrate-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--default-text-base);
+}
+
+.celebrate-sub {
+  max-width: 330px;
+  margin: 10px auto 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--default-text-medium);
+}
+
+.celebrate-cta {
+  height: 44px;
+  min-width: 160px;
+  margin-top: 26px;
+  padding: 0 32px;
+  background: var(--accent-bg);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--default-text-inverse);
+  transition: opacity 0.15s ease;
+}
+
+.celebrate-cta:hover {
+  opacity: 0.9;
+}

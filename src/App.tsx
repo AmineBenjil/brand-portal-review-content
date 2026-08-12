@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { CelebrationModal } from './components/CelebrationModal'
 import { Dashboard } from './components/Dashboard'
 import { ReviewModal } from './components/ReviewModal'
 import { reviewQueue } from './data'
@@ -8,6 +9,8 @@ export type Decision = 'approved' | 'changes'
 
 export default function App() {
   const [reviewOpen, setReviewOpen] = useState(false)
+  // One-shot congrats pop-up once the whole queue has a decision.
+  const [celebrating, setCelebrating] = useState(false)
   const [creatorIdx, setCreatorIdx] = useState(0)
   const [clipIdx, setClipIdx] = useState(0)
   const [feedback, setFeedback] = useState<Record<string, FeedbackMessage[]>>({})
@@ -63,6 +66,7 @@ export default function App() {
         }
       }
       setReviewOpen(false)
+      setCelebrating(true)
     },
     [creatorIdx, clipIdx, decisions],
   )
@@ -95,6 +99,9 @@ export default function App() {
           onDecide={decide}
           onClose={() => setReviewOpen(false)}
         />
+      )}
+      {celebrating && (
+        <CelebrationModal decisions={decisions} onClose={() => setCelebrating(false)} />
       )}
     </>
   )

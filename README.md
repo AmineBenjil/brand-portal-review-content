@@ -53,6 +53,9 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
   ("Changes requested"), then locks the draft.
 - **Dashboard** — clicking a creator row with a submission reopens the
   review at that creator; Esc or the × closes it.
+- **All done** — deciding the last draft in the queue closes the review and
+  pops a confetti congrats modal ("Every draft reviewed!") with an animated
+  check, an approved/changes tally, and a "Got it!" CTA.
 
 ## Structure
 
@@ -62,4 +65,5 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
 - `src/components/VideoPane.tsx` — player, badge, sound, control bar
 - `src/components/ReviewModal.tsx` — stage, panel, feedback, decisions
 - `src/components/Dashboard.tsx` — background page
+- `src/components/CelebrationModal.tsx` — end-of-queue congrats pop-up
 - `scripts/make-videos.mjs` — demo clip renderer

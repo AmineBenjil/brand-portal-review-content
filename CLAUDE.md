@@ -81,6 +81,14 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
   "Changes requested" copy before the decision locks in. The check overlay is
   shared: `confirming: Decision | null` picks Approved / Changes-requested
   title + sub.
+- `src/components/CelebrationModal.tsx` — "Every draft reviewed!" congrats pop-up.
+  Shown by App once ALL drafts across the queue are decided (decide()'s close
+  branch sets `celebrating`). Fixed scrim over the dashboard, 440px card,
+  CSS-only confetti (56 deterministic pieces, sin-hash rand — no Math.random),
+  reuses the approve-check draw animation at 76px, sub copy swaps on the
+  approved/changes split (all approved / none approved / mixed with counts),
+  CTA "Got it!" (click scrim or Esc also dismiss). Styles at the bottom of
+  modal.css (`celebrate-*`, `confetti-*`).
 - `src/components/VideoPane.tsx` — <video> + IG badge + sound + play overlay +
   control bar (scrub via pointer capture). Publishes clock via rAF into store.
 - `src/videoTime.ts` — VideoTimeStore (useSyncExternalStore pub/sub) so only the
@@ -150,6 +158,10 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
    footer is Request changes (flex-1, h46) / Approve (197×44); decisions are
    per draft and lock the CTAs at 0.2 opacity on revisit; request-changes no
    longer requires feedback.
+8. **Celebration pop-up** — when the last undecided draft in the queue gets a
+   decision, the review modal closes and a one-shot congrats modal appears
+   (confetti + animated check + counts + "Got it!"). No Figma node — designed
+   in code to match the app's tokens; copy follows the brand-voice pattern.
 
 ## Conventions when editing
 
