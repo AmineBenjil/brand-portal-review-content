@@ -1,29 +1,8 @@
 import { useState } from 'react'
-import { dashboardCreators } from '../data'
+import { dashboardData } from '../data'
+import type { SideRowData } from '../data'
 import type { Decision } from '../App'
-
-type FunnelStage = {
-  label: string
-  sub: string
-  check?: boolean
-  fixed?: boolean
-  count?: number
-  active?: boolean
-  review?: boolean
-  badge?: number
-}
-
-const funnelStages: FunnelStage[] = [
-  { label: 'Sourcing', sub: 'All 6 moved ahead', check: true },
-  { label: 'Invited', sub: 'All 6 moved ahead', check: true, fixed: true },
-  { label: 'Accepted', sub: 'All 6 moved ahead', check: true },
-  { label: 'Order shipped', sub: 'All 6 moved ahead', check: true },
-  { label: 'Order delivered', sub: 'All 6 moved ahead', check: true },
-  { label: 'Review drafts', sub: '5 videos need your review', count: 5, active: true, review: true, badge: 3 },
-  { label: 'Content published', sub: 'Once quality checks pass', count: 0 },
-  { label: 'Content published', sub: 'Once quality checks pass', count: 0 },
-  { label: 'Thanked', sub: 'After posts go live', count: 0 },
-]
+import type { CollabMode } from '../mode'
 
 const navItems = [
   { label: 'Campaigns', icon: 'nav-campaigns', active: true },
@@ -33,13 +12,15 @@ const navItems = [
 ]
 
 type Props = {
+  mode: CollabMode
   onOpenReview: (creatorId: string) => void
   decisions: Record<string, Decision>
 }
 
-export function Dashboard({ onOpenReview, decisions }: Props) {
+export function Dashboard({ mode, onOpenReview, decisions }: Props) {
   const [reviewFilter, setReviewFilter] = useState(false)
-  const rows = reviewFilter ? dashboardCreators.filter((c) => c.reviewId) : dashboardCreators
+  const data = dashboardData[mode]
+  const rows = reviewFilter ? data.rows.filter((c) => c.reviewId) : data.rows
 
   return (
     <div className="dashboard">
@@ -67,7 +48,7 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
           <span className="workspace-avatar">
             <span className="workspace-avatar-img" />
           </span>
-          <span className="workspace-name">Pikora</span>
+          <span className="workspace-name">{data.workspace}</span>
         </div>
       </aside>
 
@@ -81,7 +62,7 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
         </a>
         <div className="header-title-row">
           <div className="header-title-group">
-            <h1 className="header-title">Pikora Instant Bone Broth Collection</h1>
+            <h1 className="header-title">{data.campaignTitle}</h1>
             <span className="status-badge">
               <span className="status-badge-dot" />
               Active
@@ -113,11 +94,11 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
           </div>
         </div>
         <div className="funnel">
-          {funnelStages.map((stage, i) => (
+          {data.funnelStages.map((stage, i) => (
             <div key={i} className={`funnel-stage${stage.fixed ? ' funnel-stage-fixed' : ''}`}>
               <button
                 className={`funnel-bar${i === 0 ? ' funnel-bar-first' : ''}${
-                  i === funnelStages.length - 1 ? ' funnel-bar-last' : ''
+                  i === data.funnelStages.length - 1 ? ' funnel-bar-last' : ''
                 }${stage.check ? ' funnel-bar-done' : stage.active ? ' funnel-bar-active' : ' funnel-bar-idle'}${
                   stage.review ? ' funnel-bar-review' : ''
                 }`}
@@ -148,7 +129,7 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
             <p className="creators-card-title">Creators</p>
             <div className="creators-card-subrow">
               <span className="creators-card-dot creators-card-dot-amber" />
-              <p className="creators-card-sub creators-card-sub-amber">5 drafts need your review</p>
+              <p className="creators-card-sub creators-card-sub-amber">{data.reviewSubline}</p>
             </div>
           </div>
         </div>
@@ -216,34 +197,9 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
             </p>
           </div>
           <div className="side-card-rows">
-            <div className="side-row">
-              <span className="side-row-emoji">✅</span>
-              <p className="side-row-text side-row-text-away1">
-                <strong>5 of 6 creators confirmed and</strong> <span className="muted">ready to go</span>
-              </p>
-            </div>
-            <div className="side-row">
-              <span className="side-row-emoji">📦</span>
-              <p className="side-row-text">
-                <strong>4 packages shipped </strong>
-                <span className="muted-normal">— </span>
-                <span className="muted-medium">first one already delivered</span>
-              </p>
-            </div>
-            <div className="side-row">
-              <span className="side-row-emoji">🔁</span>
-              <p className="side-row-text">
-                <strong>3 stand-ins vetted </strong>
-                <span className="muted-medium">for Lena’s replacement</span>
-              </p>
-            </div>
-            <div className="side-row side-row-borderless">
-              <span className="side-row-emoji">👋</span>
-              <p className="side-row-text">
-                <strong>2 delivery nudges sent </strong>
-                <span className="muted-medium">— nothing needed your input</span>
-              </p>
-            </div>
+            {data.away.map((row, i) => (
+              <SideRow key={i} row={row} borderless={i === data.away.length - 1} />
+            ))}
           </div>
         </section>
 
@@ -252,34 +208,35 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
             <p className="side-card-title">Up next</p>
           </div>
           <div className="side-card-rows">
-            <div className="side-row">
-              <span className="side-row-emoji">📦</span>
-              <p className="side-row-text">
-                <strong>3 packages in transit </strong>
-                <span className="muted-normal">— </span>
-                <span className="muted-medium">First delivery Thursday</span>
-              </p>
-            </div>
-            <div className="side-row">
-              <span className="side-row-emoji">🔁</span>
-              <p className="side-row-text">
-                <strong>Replacement picks </strong>
-                <span className="muted-normal">— </span>
-                <span className="muted-medium">within 48h — we’ll ping you</span>
-              </p>
-            </div>
-            <div className="side-row side-row-borderless">
-              <span className="side-row-emoji">🎬</span>
-              <p className="side-row-text">
-                <strong>First creators start filming </strong>
-                <span className="muted-normal">— This weekend</span>
-              </p>
-            </div>
+            {data.next.map((row, i) => (
+              <SideRow key={i} row={row} borderless={i === data.next.length - 1} />
+            ))}
           </div>
         </section>
       </div>
       </div>
       </div>
+    </div>
+  )
+}
+
+function SideRow({ row, borderless }: { row: SideRowData; borderless: boolean }) {
+  return (
+    <div className={`side-row${borderless ? ' side-row-borderless' : ''}`}>
+      <span className="side-row-emoji">{row.emoji}</span>
+      <p className={`side-row-text${row.away1 ? ' side-row-text-away1' : ''}`}>
+        {row.parts.map((part, i) =>
+          part.tone === 'strong' ? (
+            <strong key={i}>{part.text}</strong>
+          ) : part.tone ? (
+            <span key={i} className={part.tone}>
+              {part.text}
+            </span>
+          ) : (
+            <span key={i}>{part.text}</span>
+          ),
+        )}
+      </p>
     </div>
   )
 }

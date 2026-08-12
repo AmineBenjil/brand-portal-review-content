@@ -56,10 +56,17 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
 - **All done** — deciding the last draft in the queue closes the review and
   pops a confetti congrats modal ("Every draft reviewed!") with an animated
   check, an approved/changes tally, and a "Got it!" CTA.
+- **Collab modes** — the whole app runs as a product collab (Pikora SPF,
+  shipping funnel) or a local collab (Trilogy spas, Confirmed → Visited
+  funnel, booking statuses, spa review content). Load `?mode=local` or flip
+  the bottom-left "Collab type" pill live; captions, pre-checks, suggestion
+  chips, and dashboard copy all swap from the data layer.
 
 ## Structure
 
-- `src/data.ts` — review queue (4 creators, 9 clips), captions, dashboard rows
+- `src/mode.ts` — collab mode (`?mode=local` | product) read + persistence
+- `src/data.ts` — review queues, captions, pre-checks, suggestion chips, and
+  dashboard content for both collab modes
 - `src/videoTime.ts` — tiny pub/sub store for the video clock (keeps
   per-frame updates out of the React tree except two small subscribers)
 - `src/components/VideoPane.tsx` — player, badge, sound, control bar

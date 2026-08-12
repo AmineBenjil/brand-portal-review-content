@@ -27,15 +27,41 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 - Design canvas is 1512×1024; layout uses left/right anchoring so it's exact at
   that size and stretches sensibly elsewhere. `min-width: 1280px`, `overflow: hidden`.
 
+## Collab modes (LOCAL vs PRODUCT)
+
+Two campaign types, per Julia's master-prototype spec (the pasted
+`local-vs-product-collab-instructions.md`): **product** (creator receives a
+product — Pikora SPF demo) and **local** (creator visits the business —
+Trilogy spas demo; no product/order/shipping vocabulary anywhere, ever).
+`src/mode.ts` reads `?mode=local` from the URL (default product), module-
+persists it, and the fixed bottom-left demo pill (`.mode-toggle`, base.css)
+flips it live (closes any open review, resets indices; decisions survive —
+clip ids are distinct per mode). ALL mode-dependent content is keyed by mode
+in `data.ts` (`reviewQueues`, `dashboardData`) — never branched ad-hoc in
+JSX. Most sheet/overlay strings are Julia's verbatim copy (incl. she/her
+pronouns — deliberate, do not "fix"). Local footage reuses the product UGC
+clips as stand-ins.
+
 ## File map (all small; read only what you need)
 
-- `src/data.ts` — ALL demo content. `reviewQueue`: 4 creators (emery ×5 clips
-  — 4 and 5 reuse emery-2/3 footage as "alternate takes" so the carousel has
-  overflow; quinn ×3, carter ×2 — carter's clip ids/files are `jasper-*`,
-  julian ×1), each
-  clip = {id, badge IG Reel/Story, src, poster, duration:8, caption segments with
-  mention/hashtag tones}. `dashboardCreators`: 8 table rows (3 with reviewId →
-  CTA rows, 1 avatar-less "Sourcing" placeholder row).
+- `src/mode.ts` — CollabMode type, `initialMode()` (URL → module cache),
+  `persistMode()` (updates cache + replaceState URL).
+- `src/data.ts` — ALL demo content, keyed by mode. `reviewQueues.product`:
+  4 creators (emery ×5 clips — 4 and 5 reuse emery-2/3 footage as "alternate
+  takes" so the carousel has overflow; quinn ×3, carter ×2 — carter's clip
+  ids/files are `jasper-*`, julian ×1). `reviewQueues.local`: Maya ×2 (IG
+  Reel + IG Story) + Jade ×1 (TikTok — text-only badge, no IG rings), all
+  Trilogy-spa captions verbatim from Julia's REVIEW.local. Each clip =
+  {id, badge IG Reel/Story/TikTok, src, poster, duration:8, caption segments,
+  checks[] (Katie's-team pre-checks), suggestions[] {label, fill} (caption-
+  aware chips)}. Pre-check pattern: product verifies the product is shown/
+  named + shop linked; local verifies the place is shown/named/tagged +
+  booking page linked; disclosure and "sounds like her" in both.
+  `dashboardData[mode]`: workspace, campaignTitle, funnelStages (local swaps
+  Order shipped/delivered → Confirmed/Visited), reviewSubline, 8 table rows
+  (product rows unchanged from v3; local rows use §6 statuses like
+  "📅 Visiting tomorrow at 2pm" — keep statuses ≤ one line in the 238px
+  column), away/next side-card rows as {emoji, parts[{text, tone}]}.
 - `src/App.tsx` — state owner: reviewOpen (starts false), creatorIdx, clipIdx,
   feedback per clipId, decisions per CLIP id ('approved' | 'changes').
   decide() advances to the next undecided draft of the creator, else to the
@@ -43,9 +69,10 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
   derived creator-level decisions (row flips only when all drafts decided;
   any 'changes' wins over 'approved').
 - `src/components/Dashboard.tsx` — sidebar/header/funnel/creators table/side
-  cards. Local `reviewFilter` state: clicking the "Review drafts" funnel bar
-  filters table to reviewId rows. `decisionLabel()` swaps row status after a
-  decision. Funnel stages are a const array at the top. Layout: sidebar +
+  cards, all content from `dashboardData[mode]` (funnel, rows, side cards —
+  no hardcoded copy left in the JSX). Local `reviewFilter` state: clicking
+  the "Review drafts" funnel bar filters table to reviewId rows.
+  `decisionLabel()` swaps row status after a decision. Layout: sidebar +
   header are fixed; everything else lives in `.dashboard-scroll` (absolute,
   below the 165px header, overflow-y auto, padding 32/24/24/32) — progress
   section in flow, then `.dashboard-columns` (flex, gap 20) with the
@@ -162,6 +189,19 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
    decision, the review modal closes and a one-shot congrats modal appears
    (confetti + animated check + counts + "Got it!"). No Figma node — designed
    in code to match the app's tokens; copy follows the brand-voice pattern.
+9. **LOCAL vs PRODUCT modes** (Julia's spec) — `?mode=` + demo toggle; data
+   layer keyed by mode; review sheet upgraded: verbatim reshoot line with
+   mode-dependent ask + "Talk to Katie's team →" (no-op link), mode
+   placeholders, "Suggested · from her caption" chips + "Quick fixes · no
+   re-filming" chips (chips now FILL starter sentences, not comma-append),
+   "Send to {name}" + "Goes straight to her · one change round included";
+   panel gained a "Katie's team pre-checked" section (flow `.panel-below`
+   container that also hosts feedback — the old absolute feedback layout is
+   gone) and a waiting nudge above the footer CTAs; approve overlay copy is
+   now Julia's verbatim ("Approved — {name} will post it within days." /
+   "Sent to {name}."). The sheet is flow-layout now (min-height 486, grows).
+   NOT implemented (no surface in this prototype): §6 Confirm-visit /
+   Ship-and-add-tracking modals, rail NEXT_HINTS, approved-state note input.
 
 ## Conventions when editing
 

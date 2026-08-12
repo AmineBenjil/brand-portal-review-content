@@ -93,10 +93,14 @@ export function VideoPane({ clip, store, apiRef }: Props) {
       />
 
       <div className="video-badge">
-        <span className="ig-icon">
-          <img src="/assets/icons/instagram-outer.svg" alt="" className="ig-icon-outer" />
-          <img src="/assets/icons/instagram-inner.svg" alt="" className="ig-icon-inner" />
-        </span>
+        {/* The IG rings are Instagram-only; TikTok drafts get a text badge
+            (no hand-drawn icons — see CLAUDE.md). */}
+        {clip.badge !== 'TikTok' && (
+          <span className="ig-icon">
+            <img src="/assets/icons/instagram-outer.svg" alt="" className="ig-icon-outer" />
+            <img src="/assets/icons/instagram-inner.svg" alt="" className="ig-icon-inner" />
+          </span>
+        )}
         {clip.badge}
       </div>
 

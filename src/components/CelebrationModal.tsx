@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { reviewQueue } from '../data'
+import type { Creator } from '../data'
 import type { Decision } from '../App'
 
 /** Brand-ish confetti palette: accent purple, approve green, plus warm accents. */
@@ -35,17 +35,18 @@ const CONFETTI: ConfettiPiece[] = Array.from({ length: CONFETTI_COUNT }, (_, i) 
 }))
 
 type Props = {
+  queue: Creator[]
   decisions: Record<string, Decision>
   onClose: () => void
 }
 
-export function CelebrationModal({ decisions, onClose }: Props) {
+export function CelebrationModal({ queue, decisions, onClose }: Props) {
   // One concrete detail for the sub copy: how the review actually landed.
   const { total, approved, changes } = useMemo(() => {
-    const all = reviewQueue.flatMap((c) => c.clips)
+    const all = queue.flatMap((c) => c.clips)
     const approvedCount = all.filter((c) => decisions[c.id] === 'approved').length
     return { total: all.length, approved: approvedCount, changes: all.length - approvedCount }
-  }, [decisions])
+  }, [queue, decisions])
 
   const sub =
     changes === 0

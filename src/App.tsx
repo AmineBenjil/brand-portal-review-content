@@ -2,12 +2,16 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { CelebrationModal } from './components/CelebrationModal'
 import { Dashboard } from './components/Dashboard'
 import { ReviewModal } from './components/ReviewModal'
-import { reviewQueue } from './data'
+import { reviewQueues } from './data'
 import type { FeedbackMessage } from './data'
+import { initialMode, persistMode } from './mode'
+import type { CollabMode } from './mode'
 
 export type Decision = 'approved' | 'changes'
 
 export default function App() {
+  // Collab mode: URL ?mode=local, default product; demo toggle flips it live.
+  const [mode, setMode] = useState<CollabMode>(initialMode)
   const [reviewOpen, setReviewOpen] = useState(false)
   // One-shot congrats pop-up once the whole queue has a decision.
   const [celebrating, setCelebrating] = useState(false)
@@ -15,17 +19,37 @@ export default function App() {
   const [clipIdx, setClipIdx] = useState(0)
   const [feedback, setFeedback] = useState<Record<string, FeedbackMessage[]>>({})
   // Decisions are per draft (clip id). Once a draft is decided it stays locked.
+  // Clip ids are distinct across modes, so the map never cross-contaminates.
   const [decisions, setDecisions] = useState<Record<string, Decision>>({})
   const nextMessageId = useRef(1)
 
-  const openReview = useCallback((creatorId: string) => {
-    const idx = reviewQueue.findIndex((c) => c.id === creatorId)
-    if (idx >= 0) {
-      setCreatorIdx(idx)
+  const queue = reviewQueues[mode]
+
+  const switchMode = useCallback(
+    (next: CollabMode) => {
+      if (next === mode) return
+      persistMode(next)
+      setMode(next)
+      // The open review points into the other mode's queue — close it.
+      setReviewOpen(false)
+      setCelebrating(false)
+      setCreatorIdx(0)
       setClipIdx(0)
-      setReviewOpen(true)
-    }
-  }, [])
+    },
+    [mode],
+  )
+
+  const openReview = useCallback(
+    (creatorId: string) => {
+      const idx = queue.findIndex((c) => c.id === creatorId)
+      if (idx >= 0) {
+        setCreatorIdx(idx)
+        setClipIdx(0)
+        setReviewOpen(true)
+      }
+    },
+    [queue],
+  )
 
   const addFeedback = useCallback((clipId: string, text: string, timestamp: number | null) => {
     const message: FeedbackMessage = { id: nextMessageId.current++, text, timestamp }
@@ -43,7 +67,7 @@ export default function App() {
 
   const decide = useCallback(
     (decision: Decision) => {
-      const creator = reviewQueue[creatorIdx]
+      const creator = queue[creatorIdx]
       const clip = creator.clips[clipIdx]
       const nextDecisions = { ...decisions, [clip.id]: decision }
       setDecisions(nextDecisions)
@@ -56,9 +80,9 @@ export default function App() {
           return
         }
       }
-      for (let offset = 1; offset <= reviewQueue.length; offset++) {
-        const i = (creatorIdx + offset) % reviewQueue.length
-        const undecided = reviewQueue[i].clips.findIndex((c) => !nextDecisions[c.id])
+      for (let offset = 1; offset <= queue.length; offset++) {
+        const i = (creatorIdx + offset) % queue.length
+        const undecided = queue[i].clips.findIndex((c) => !nextDecisions[c.id])
         if (undecided >= 0) {
           setCreatorIdx(i)
           setClipIdx(undecided)
@@ -68,13 +92,13 @@ export default function App() {
       setReviewOpen(false)
       setCelebrating(true)
     },
-    [creatorIdx, clipIdx, decisions],
+    [queue, creatorIdx, clipIdx, decisions],
   )
 
   // A creator's dashboard row flips once every draft has a decision.
   const creatorDecisions = useMemo(() => {
     const map: Record<string, Decision> = {}
-    for (const creator of reviewQueue) {
+    for (const creator of queue) {
       if (creator.clips.every((c) => decisions[c.id])) {
         map[creator.id] = creator.clips.some((c) => decisions[c.id] === 'changes')
           ? 'changes'
@@ -82,13 +106,14 @@ export default function App() {
       }
     }
     return map
-  }, [decisions])
+  }, [queue, decisions])
 
   return (
     <>
-      <Dashboard onOpenReview={openReview} decisions={creatorDecisions} />
+      <Dashboard mode={mode} onOpenReview={openReview} decisions={creatorDecisions} />
       {reviewOpen && (
         <ReviewModal
+          mode={mode}
           creatorIdx={creatorIdx}
           clipIdx={clipIdx}
           feedback={feedback}
@@ -101,8 +126,25 @@ export default function App() {
         />
       )}
       {celebrating && (
-        <CelebrationModal decisions={decisions} onClose={() => setCelebrating(false)} />
+        <CelebrationModal queue={queue} decisions={decisions} onClose={() => setCelebrating(false)} />
       )}
+
+      {/* Demo chrome (not part of the design): flips the collab type live. */}
+      <div className="mode-toggle">
+        <span className="mode-toggle-label">Collab type</span>
+        <button
+          className={`mode-toggle-btn${mode === 'product' ? ' is-active' : ''}`}
+          onClick={() => switchMode('product')}
+        >
+          Product
+        </button>
+        <button
+          className={`mode-toggle-btn${mode === 'local' ? ' is-active' : ''}`}
+          onClick={() => switchMode('local')}
+        >
+          Local
+        </button>
+      </div>
     </>
   )
 }
