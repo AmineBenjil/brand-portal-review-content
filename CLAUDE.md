@@ -15,7 +15,7 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 - v4 modal: page `12292:172790`, overlay `12292:173065`, left stage `12292:173068`,
   right panel `12292:173088` (Drafts section, per-draft decisions, no Decline)
 - v4 request-changes prompt: `12289:172657` (410×486 sheet: 🖊️ icon, chips,
-  Send, Keep reviewing)
+  Send, Keep reviewing) — the ONLY feedback entry point (panel composer removed)
 - v3 dashboard page: node `12278:171670` (78%, Review drafts funnel stage, CTA rows)
 - v2 modal (superseded): page `12274:169758`, overlay `12274:170033`, right panel
   `12275:170273`
@@ -43,10 +43,13 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 - `src/components/ReviewModal.tsx` — the whole modal (v4). Topbar "Review" +
   ‹ n/4 › creator pager; stage arrows flip DRAFTS within the creator (disabled
   at ends); panel: creator info, caption, "n Drafts" thumbnail row (85×110,
-  selected = 2px purple ::after ring, decision icon 24px top-right — green
-  check approved / orange changes), divider, feedback list + composer
-  (timestamp pill), footer Request changes / Approve (both disabled at 0.2
-  opacity once the draft is decided). 1s skeleton on flips ('full' on creator
+  selected = 2px purple ::after ring, decision icon top-right — 24px SVG
+  scaled to 30px + CSS drop-shadow lift; green check approved / orange
+  changes), then a Feedback section (divider + head + list, absolutely
+  positioned at 371/383/406px) that renders ONLY when the draft has notes.
+  No composer in the panel — feedback is written solely in the
+  request-changes sheet. Footer Request changes / Approve (both disabled at
+  0.2 opacity once the draft is decided). 1s skeleton on flips ('full' on creator
   change, 'video' on clip change), approve overlay (1.4s animated check, then
   onDecide). Decline flow removed in v4. Feedback section kept from v2 (the
   v4 mock leaves that area empty — deliberate carry-over, not in the mock).

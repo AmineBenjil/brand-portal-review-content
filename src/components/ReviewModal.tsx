@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { reviewQueue } from '../data'
 import type { FeedbackMessage } from '../data'
 import type { Decision } from '../App'
-import { VideoTimeStore, useVideoTime, formatTime } from '../videoTime'
+import { VideoTimeStore } from '../videoTime'
 import { VideoPane } from './VideoPane'
 import type { VideoApi } from './VideoPane'
 
@@ -39,8 +39,6 @@ export function ReviewModal({
   const store = useMemo(() => new VideoTimeStore(), [])
   const videoApi = useRef<VideoApi | null>(null)
 
-  const [draft, setDraft] = useState('')
-  const [pillVisible, setPillVisible] = useState(true)
   const [confirming, setConfirming] = useState<Decision | null>(null)
   const [changesOpen, setChangesOpen] = useState(false)
   const [changesText, setChangesText] = useState('')
@@ -70,8 +68,6 @@ export function ReviewModal({
 
   // Reset composition state whenever the clip changes.
   useEffect(() => {
-    setDraft('')
-    setPillVisible(true)
     setChangesOpen(false)
     setChangesText('')
   }, [clip.id])
@@ -101,15 +97,6 @@ export function ReviewModal({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose, onSelectClip, clipIdx, creator.clips.length, changesOpen])
 
-  const send = () => {
-    const text = draft.trim()
-    if (!text) return
-    const t = store.getSnapshot().time
-    onAddFeedback(clip.id, text, pillVisible ? Math.floor(t) : null)
-    setDraft('')
-    setPillVisible(true)
-  }
-
   // Animated check overlay (1.4s), then the decision lands.
   const confirmDecision = (decision: Decision) => {
     setConfirming(decision)
@@ -131,12 +118,6 @@ export function ReviewModal({
   const fillChip = (chip: string) => {
     setChangesText((t) => (t.trim() ? `${t.replace(/\s+$/, '')}, ${chip.toLowerCase()}` : chip))
     changesRef.current?.focus()
-  }
-
-  const seekTo = (t: number) => {
-    videoApi.current?.pause()
-    videoApi.current?.seek(t)
-    setPillVisible(true)
   }
 
   return (
@@ -230,8 +211,6 @@ export function ReviewModal({
                     ))}
                   </div>
                 </div>
-                <img src="/assets/misc/line-divider.svg" alt="" className="panel-divider" />
-                <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 62 }} />
               </div>
             </div>
           ) : (
@@ -287,74 +266,33 @@ export function ReviewModal({
                   ))}
                 </div>
               </div>
-              <img src="/assets/misc/line-divider.svg" alt="" className="panel-divider" />
-              <div className="panel-feedback-head">
+            </div>
+          </div>
+          )}
+
+          {/* Feedback appears under the drafts only once a note exists */}
+          {skeleton !== 'full' && messages.length > 0 && (
+            <>
+              <img src="/assets/misc/line-divider.svg" alt="" className="panel-divider panel-divider-feedback" />
+              <div className="panel-feedback-head panel-feedback-head-fixed">
                 <p className="panel-feedback-title">Feedback</p>
               </div>
-            </div>
-          </div>
-          )}
-
-          {skeleton === 'full' ? (
-            <div className="feedback-list" aria-hidden>
-              <span className="skeleton-block skeleton-line" style={{ width: '84%' }} />
-              <span className="skeleton-block skeleton-line" style={{ width: '58%' }} />
-            </div>
-          ) : (
-          <div className="feedback-list" ref={listRef}>
-            {messages.map((m) => (
-              <div key={m.id} className="feedback-message">
-                {m.timestamp !== null && (
-                  <button
-                    className="feedback-message-pill"
-                    title="Jump to this moment"
-                    onClick={() => seekTo(m.timestamp!)}
-                  >
-                    {formatTime(m.timestamp)}
-                  </button>
-                )}
-                <span className="feedback-message-text">{m.text}</span>
-                <button
-                  className="feedback-message-remove"
-                  title="Remove"
-                  onClick={() => onRemoveFeedback(clip.id, m.id)}
-                >
-                  <img src="/assets/icons/close-12.svg" alt="" />
-                </button>
+              <div className="feedback-list" ref={listRef}>
+                {messages.map((m) => (
+                  <div key={m.id} className="feedback-message">
+                    <span className="feedback-message-text">{m.text}</span>
+                    <button
+                      className="feedback-message-remove"
+                      title="Remove"
+                      onClick={() => onRemoveFeedback(clip.id, m.id)}
+                    >
+                      <img src="/assets/icons/close-12.svg" alt="" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
           )}
-
-          <div className={`feedback-input${skeleton === 'full' ? ' is-skeleton' : ''}`}>
-            <textarea
-              className="feedback-textarea"
-              placeholder={`Add your feedback — we’ll pass it straight to ${creator.firstName}`}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                const isEnter = e.key === 'Enter' || e.key === 'Return' || e.keyCode === 13
-                if (isEnter && !e.shiftKey) {
-                  e.preventDefault()
-                  send()
-                }
-              }}
-            />
-            <div className="feedback-input-row">
-              {pillVisible ? (
-                <TimestampPill store={store} onDismiss={() => setPillVisible(false)} />
-              ) : (
-                <span />
-              )}
-              <button
-                className={`feedback-send${draft.trim() ? ' is-ready' : ''}`}
-                onClick={send}
-                title="Send feedback"
-              >
-                <img src={draft.trim() ? '/assets/icons/send-btn-active.svg' : '/assets/icons/send-btn.svg'} alt="" />
-              </button>
-            </div>
-          </div>
 
           <div className="panel-footer">
             <button
@@ -442,17 +380,5 @@ export function ReviewModal({
         )}
       </div>
     </div>
-  )
-}
-
-function TimestampPill({ store, onDismiss }: { store: VideoTimeStore; onDismiss: () => void }) {
-  const { time, playing } = useVideoTime(store)
-  return (
-    <span className={`timestamp-pill${playing ? ' is-live' : ''}`}>
-      <span className="timestamp-pill-time">{formatTime(time)}</span>
-      <button className="timestamp-pill-close" title="Send without timestamp" onClick={onDismiss}>
-        <img src="/assets/icons/close-12.svg" alt="" />
-      </button>
-    </span>
   )
 }

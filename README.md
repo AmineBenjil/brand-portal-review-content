@@ -28,12 +28,10 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
 ## What's interactive
 
 - **Play/pause** — center overlay, control-bar toggle, or clicking the video.
-- **Timestamp sync** — the amber pill in the feedback composer ticks in real
-  time with the video clock while playing and holds the frame when paused.
 - **Scrubbing** — click or drag the control-bar track to seek.
-- **Timestamped feedback** — send with the arrow button or Enter; the note
-  stacks under "Feedback" with its timestamp pill. Clicking a note's pill
-  seeks the video to that moment. The pill's × sends without a timestamp.
+- **Feedback** — written in the Request changes sheet only; sent notes stack
+  under a "Feedback" heading beneath the draft thumbnails (the section only
+  appears once a note exists).
 - **Draft navigation** — the circular arrows flanking the video step through
   the current creator's drafts (badge, caption, duration and per-draft
   feedback follow), and the "Drafts" thumbnails in the panel jump straight to
