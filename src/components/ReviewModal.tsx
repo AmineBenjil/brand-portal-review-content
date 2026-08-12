@@ -295,11 +295,14 @@ export function ReviewModal({
                   >
                     <img src={c.poster} alt="" className="draft-thumb-img" />
                     {decisions[c.id] && (
-                      <img
-                        src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
-                        alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
-                        className="draft-thumb-icon"
-                      />
+                      <>
+                        <span className="draft-thumb-dim" />
+                        <img
+                          src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
+                          alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
+                          className="draft-thumb-icon"
+                        />
+                      </>
                     )}
                   </button>
                 ))}

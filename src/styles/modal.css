@@ -594,15 +594,23 @@
   pointer-events: none;
 }
 
-/* 24px export whose 16px circle sits at (4,3): offsets put the circle at
-   -6/-6, straddling the thumb corner; CSS drop shadow adds lift */
+/* Decided drafts dim under their status icon */
+.draft-thumb-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* 28px export whose 20px circle sits at (4,3) with a baked drop shadow:
+   offsets land the circle 4px inside the thumb corner */
 .draft-thumb-icon {
   position: absolute;
-  top: -9px;
-  right: -10px;
-  width: 24px;
-  height: 24px;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35));
+  top: 1px;
+  right: 0;
+  width: 28px;
+  height: 28px;
 }
 
 .draft-thumb-skeleton {

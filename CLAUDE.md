@@ -13,7 +13,9 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 ## Figma sources (current = v5 panel, v4 modal shell, v3 dashboard)
 
 - v5 right panel: page `12295:173210`, panel `12295:173508` (creator → Drafts
-  carousel → Caption order, "Drafts (n)" header with pager, corner icons)
+  carousel → Caption order, "Drafts (n)" header with pager)
+- v5.1 thumb decision state: page `12298:173629`, thumbs `12298:173959` /
+  `12298:173962` (20px icon inset 4/4, 0.3 dim overlay on decided thumbs)
 - v4 modal: page `12292:172790`, overlay `12292:173065`, left stage `12292:173068`,
   right panel `12292:173088` (superseded by v5 panel layout)
 - v4 request-changes prompt: `12289:172657` (410×486 sheet: 🖊️ icon, chips,
@@ -52,9 +54,11 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
   clipped; track top 14px inside for icon headroom; steps 95px via
   `draftScroll`, clamped to `maxDraftScroll`, resets per creator,
   auto-scrolls to keep the selected thumb visible), caption (271). Thumbs
-  85×110, selected = 2px purple ::after ring, decision icon straddles the
-  top-right corner (24px SVG at top -9/right -10 → 16px circle at -6/-6,
-  CSS drop-shadow lift). Feedback section (divider/head/list at 371/383/406)
+  85×110, selected = 2px purple ::after ring; decided thumbs get a 0.3 dark
+  overlay + status icon inset in the top-right corner (28px SVG at top
+  1/right 0 → 20px circle at 4/4, shadow baked into the export — icons are
+  `draft-approved.svg` / `draft-changes.svg`, re-exported at 28px in v5.1).
+  Feedback section (divider/head/list at 371/383/406)
   renders ONLY when the draft has notes; no composer in the panel — feedback
   is written solely in the request-changes sheet. Footer Request changes /
   Approve (both disabled at 0.2 opacity once the draft is decided). 1s

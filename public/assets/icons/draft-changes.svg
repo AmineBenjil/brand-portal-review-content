@@ -1,10 +1,10 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="icon" filter="url(#filter0_d_0_4)">
-<rect x="4" y="3" width="16" height="16" rx="8" fill="white" shape-rendering="crispEdges"/>
-<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M7.6028 11C7.6028 8.51531 9.56432 6.5 11.9707 6.5C13.7636 6.5 14.7769 7.38079 15.5354 8.28176V7.41601H16.5V9.21615C16.5 9.65903 16.1498 10.0186 15.7172 10.0186H13.9618V9.03H14.8879C14.1862 8.17533 13.42 7.48856 11.9707 7.48856C10.1009 7.48856 8.56738 9.05732 8.56738 11H7.6028ZM16.3798 11V11.0211C16.3798 13.4847 14.4388 15.5 12.0119 15.5C10.2324 15.5 9.21777 14.6067 8.46458 13.7214V14.5839H7.5V12.7838C7.5 12.3409 7.85019 11.9814 8.28277 11.9814H10.0382V12.9699H9.10953C9.81138 13.8138 10.5736 14.5114 12.0119 14.5114C13.9023 14.5114 15.4152 12.9427 15.4152 11.0211V11H16.3798Z" fill="#E88E2C"/>
+<rect x="4" y="3" width="20" height="20" rx="10" fill="white" shape-rendering="crispEdges"/>
+<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M9.6028 13C9.6028 10.5153 11.5643 8.5 13.9707 8.5C15.7636 8.5 16.7769 9.38079 17.5354 10.2818V9.41601H18.5V11.2161C18.5 11.659 18.1498 12.0186 17.7172 12.0186H15.9618V11.03H16.8879C16.1862 10.1753 15.42 9.48856 13.9707 9.48856C12.1009 9.48856 10.5674 11.0573 10.5674 13H9.6028ZM18.3798 13V13.0211C18.3798 15.4847 16.4388 17.5 14.0119 17.5C12.2324 17.5 11.2178 16.6067 10.4646 15.7214V16.5839H9.5V14.7838C9.5 14.3409 9.85019 13.9814 10.2828 13.9814H12.0382V14.9699H11.1095C11.8114 15.8138 12.5736 16.5114 14.0119 16.5114C15.9023 16.5114 17.4152 14.9427 17.4152 13.0211V13H18.3798Z" fill="#E88E2C"/>
 </g>
 <defs>
-<filter id="filter0_d_0_4" x="0" y="0" width="24" height="24" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_d_0_4" x="0" y="0" width="28" height="28" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dy="1"/>
