@@ -23,7 +23,6 @@ type Props = {
   onSelectCreator: (idx: number) => void
   onSelectClip: (idx: number) => void
   onAddFeedback: (clipId: string, text: string, timestamp: number | null) => void
-  onRemoveFeedback: (clipId: string, messageId: number) => void
   onDecide: (decision: Decision) => void
   onClose: () => void
 }
@@ -36,7 +35,6 @@ export function ReviewModal({
   onSelectCreator,
   onSelectClip,
   onAddFeedback,
-  onRemoveFeedback,
   onDecide,
   onClose,
 }: Props) {
@@ -336,13 +334,6 @@ export function ReviewModal({
                 {messages.map((m) => (
                   <div key={m.id} className="feedback-message">
                     <span className="feedback-message-text">{m.text}</span>
-                    <button
-                      className="feedback-message-remove"
-                      title="Remove"
-                      onClick={() => onRemoveFeedback(clip.id, m.id)}
-                    >
-                      <img src="/assets/icons/close-12.svg" alt="" />
-                    </button>
                   </div>
                 ))}
               </div>

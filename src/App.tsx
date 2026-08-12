@@ -29,13 +29,6 @@ export default function App() {
     setFeedback((prev) => ({ ...prev, [clipId]: [...(prev[clipId] ?? []), message] }))
   }, [])
 
-  const removeFeedback = useCallback((clipId: string, messageId: number) => {
-    setFeedback((prev) => ({
-      ...prev,
-      [clipId]: (prev[clipId] ?? []).filter((m) => m.id !== messageId),
-    }))
-  }, [])
-
   const goToCreator = useCallback((idx: number) => {
     setCreatorIdx(idx)
     setClipIdx(0)
@@ -99,7 +92,6 @@ export default function App() {
           onSelectCreator={goToCreator}
           onSelectClip={goToClip}
           onAddFeedback={addFeedback}
-          onRemoveFeedback={removeFeedback}
           onDecide={decide}
           onClose={() => setReviewOpen(false)}
         />
