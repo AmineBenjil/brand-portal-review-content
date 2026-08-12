@@ -6,17 +6,11 @@ import { VideoTimeStore, useVideoTime, formatTime } from '../videoTime'
 import { VideoPane } from './VideoPane'
 import type { VideoApi } from './VideoPane'
 
-/** Decline prompt style: slide-up sheet by default; append ?decline=center to the URL for the centered dialog version. */
-const DECLINE_VARIANT: 'sheet' | 'center' =
-  new URLSearchParams(window.location.search).get('decline') === 'center' ? 'center' : 'sheet'
-
 type Props = {
   creatorIdx: number
   clipIdx: number
   feedback: Record<string, FeedbackMessage[]>
-  canGoPrev: boolean
-  canGoNext: boolean
-  onStep: (delta: 1 | -1) => void
+  decisions: Record<string, Decision>
   onSelectCreator: (idx: number) => void
   onSelectClip: (idx: number) => void
   onAddFeedback: (clipId: string, text: string, timestamp: number | null) => void
@@ -29,9 +23,7 @@ export function ReviewModal({
   creatorIdx,
   clipIdx,
   feedback,
-  canGoPrev,
-  canGoNext,
-  onStep,
+  decisions,
   onSelectCreator,
   onSelectClip,
   onAddFeedback,
@@ -46,8 +38,6 @@ export function ReviewModal({
 
   const [draft, setDraft] = useState('')
   const [pillVisible, setPillVisible] = useState(true)
-  const [declineOpen, setDeclineOpen] = useState(false)
-  const [declineText, setDeclineText] = useState('')
   const [approving, setApproving] = useState(false)
   const [skeleton, setSkeleton] = useState<'none' | 'video' | 'full'>('none')
   const listRef = useRef<HTMLDivElement>(null)
@@ -69,7 +59,8 @@ export function ReviewModal({
   useEffect(() => () => clearTimeout(approveTimer.current), [])
 
   const messages = feedback[clip.id] ?? []
-  const creatorHasFeedback = creator.clips.some((c) => (feedback[c.id] ?? []).length > 0)
+  // Once a draft is decided its CTAs stay locked — no second decision on top.
+  const decided = decisions[clip.id]
 
   // Reset composition state whenever the clip changes.
   useEffect(() => {
@@ -83,24 +74,18 @@ export function ReviewModal({
     if (list) list.scrollTop = list.scrollHeight
   }, [messages.length])
 
-  // Keyboard: Esc closes, arrows change clip when not typing.
+  // Keyboard: Esc closes, arrows flip between this creator's drafts when not typing.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (declineOpen) {
-          setDeclineOpen(false)
-          return
-        }
-        onClose()
-      }
+      if (e.key === 'Escape') onClose()
       const typing = document.activeElement?.tagName === 'TEXTAREA'
       if (typing) return
-      if (e.key === 'ArrowRight') onStep(1)
-      if (e.key === 'ArrowLeft') onStep(-1)
+      if (e.key === 'ArrowRight' && clipIdx < creator.clips.length - 1) onSelectClip(clipIdx + 1)
+      if (e.key === 'ArrowLeft' && clipIdx > 0) onSelectClip(clipIdx - 1)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, onStep, declineOpen])
+  }, [onClose, onSelectClip, clipIdx, creator.clips.length])
 
   const send = () => {
     const text = draft.trim()
@@ -119,15 +104,6 @@ export function ReviewModal({
     }, 1400)
   }
 
-  const submitDecline = () => {
-    const text = declineText.trim()
-    if (!text) return
-    onAddFeedback(clip.id, text, null)
-    setDeclineOpen(false)
-    setDeclineText('')
-    onDecide('declined')
-  }
-
   const seekTo = (t: number) => {
     videoApi.current?.pause()
     videoApi.current?.seek(t)
@@ -137,7 +113,7 @@ export function ReviewModal({
   return (
     <div className="review-overlay" onClick={onClose}>
       <div className="review-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Left stage: gradient + video + thumbnails + navigation */}
+        {/* Left stage: gradient + video + draft navigation */}
         <div className="review-stage">
           <div className="stage-gradient-clip" aria-hidden>
             <img src="/assets/modal/gradient-bg.png" alt="" className="stage-gradient" />
@@ -149,41 +125,21 @@ export function ReviewModal({
               <div className="skeleton-shimmer" />
             </div>
           )}
-          <div className="thumb-strip">
-            {creator.clips.map((c, i) => (
-              <button
-                key={c.id}
-                className={`thumb${i === clipIdx ? ' is-selected' : ''}`}
-                title={`Clip ${i + 1}`}
-                onClick={() => onSelectClip(i)}
-              >
-                <img src={c.poster} alt="" />
-                {i === clipIdx && (
-                  <>
-                    <span className="thumb-overlay" />
-                    <span className="thumb-check">
-                      <img src="/assets/icons/check-thumb.svg" alt="" />
-                    </span>
-                  </>
-                )}
-              </button>
-            ))}
-          </div>
           <button
-            className={`stage-nav stage-nav-prev${canGoPrev ? '' : ' is-disabled'}`}
-            disabled={!canGoPrev}
-            onClick={() => onStep(-1)}
-            title="Previous clip"
+            className={`stage-nav stage-nav-prev${clipIdx > 0 ? '' : ' is-disabled'}`}
+            disabled={clipIdx === 0}
+            onClick={() => onSelectClip(clipIdx - 1)}
+            title="Previous draft"
           >
             <span className="chev chev-left">
               <img src="/assets/icons/chevron-shape.svg" alt="" />
             </span>
           </button>
           <button
-            className={`stage-nav stage-nav-next${canGoNext ? '' : ' is-disabled'}`}
-            disabled={!canGoNext}
-            onClick={() => onStep(1)}
-            title="Next clip"
+            className={`stage-nav stage-nav-next${clipIdx < creator.clips.length - 1 ? '' : ' is-disabled'}`}
+            disabled={clipIdx === creator.clips.length - 1}
+            onClick={() => onSelectClip(clipIdx + 1)}
+            title="Next draft"
           >
             <span className="chev">
               <img src="/assets/icons/chevron-shape.svg" alt="" />
@@ -194,7 +150,7 @@ export function ReviewModal({
         {/* Right panel */}
         <div className="review-panel">
           <div className="panel-topbar">
-            <p className="topbar-title">Review drafts</p>
+            <p className="topbar-title">Review</p>
             <div className="topbar-nav">
               <button
                 className="topbar-arrow"
@@ -237,6 +193,14 @@ export function ReviewModal({
                   <span className="skeleton-block skeleton-line" style={{ width: '92%', marginTop: 6 }} />
                   <span className="skeleton-block skeleton-line" style={{ width: '65%', marginTop: 6 }} />
                 </div>
+                <div className="panel-drafts">
+                  <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 52 }} />
+                  <div className="drafts-row">
+                    {creator.clips.map((c) => (
+                      <span key={c.id} className="skeleton-block draft-thumb-skeleton" />
+                    ))}
+                  </div>
+                </div>
                 <img src="/assets/misc/line-divider.svg" alt="" className="panel-divider" />
                 <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 62 }} />
               </div>
@@ -267,6 +231,30 @@ export function ReviewModal({
                         </span>
                       ))}
                     </p>
+                  ))}
+                </div>
+              </div>
+              <div className="panel-drafts">
+                <p className="panel-drafts-title">
+                  {creator.clips.length} {creator.clips.length === 1 ? 'Draft' : 'Drafts'}
+                </p>
+                <div className="drafts-row">
+                  {creator.clips.map((c, i) => (
+                    <button
+                      key={c.id}
+                      className={`draft-thumb${i === clipIdx ? ' is-selected' : ''}`}
+                      title={`Draft ${i + 1}`}
+                      onClick={() => onSelectClip(i)}
+                    >
+                      <img src={c.poster} alt="" className="draft-thumb-img" />
+                      {decisions[c.id] && (
+                        <img
+                          src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
+                          alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
+                          className="draft-thumb-icon"
+                        />
+                      )}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -340,21 +328,16 @@ export function ReviewModal({
           </div>
 
           <div className="panel-footer">
-            <button className="footer-decline" disabled={approving} onClick={() => setDeclineOpen(true)}>
-              Decline
+            <button
+              className="footer-changes"
+              disabled={!!decided || approving}
+              onClick={() => onDecide('changes')}
+            >
+              Request changes
             </button>
-            <div className="footer-actions">
-              <button
-                className="footer-changes"
-                disabled={!creatorHasFeedback || approving}
-                onClick={() => onDecide('changes')}
-              >
-                Request changes
-              </button>
-              <button className="footer-approve" disabled={approving} onClick={approve}>
-                Approve
-              </button>
-            </div>
+            <button className="footer-approve" disabled={!!decided || approving} onClick={approve}>
+              Approve
+            </button>
           </div>
 
           {approving && (
@@ -377,42 +360,6 @@ export function ReviewModal({
             </div>
           )}
         </div>
-
-        {declineOpen && (
-          <div
-            className={`decline-scrim${DECLINE_VARIANT === 'center' ? ' decline-scrim-center' : ''}`}
-            onClick={() => setDeclineOpen(false)}
-          >
-            <div
-              className={DECLINE_VARIANT === 'center' ? 'decline-card decline-card-center' : 'decline-card decline-card-sheet'}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className="decline-icon">💬</span>
-              <p className="decline-title">Why did you decline?</p>
-              <p className="decline-sub">
-                Tell us what missed the mark — we’ll pass it to {creator.firstName}’s producer and
-                brief the reshoot, so the next draft lands closer.
-              </p>
-              <label className="decline-label" htmlFor="decline-reason">
-                What didn’t work
-              </label>
-              <textarea
-                id="decline-reason"
-                className="decline-textarea"
-                placeholder="e.g. The hook is too slow — the product should show up in the first 3 seconds"
-                value={declineText}
-                autoFocus
-                onChange={(e) => setDeclineText(e.target.value)}
-              />
-              <button className="decline-submit" disabled={!declineText.trim()} onClick={submitDecline}>
-                Send & decline draft
-              </button>
-              <button className="decline-cancel" onClick={() => setDeclineOpen(false)}>
-                Keep reviewing
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

@@ -281,6 +281,5 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
 
 function decisionLabel(decision: Decision) {
   if (decision === 'approved') return 'Content approved — scheduling the post'
-  if (decision === 'declined') return 'Content declined — we’ll take it from here'
   return 'Changes requested — we passed on your notes'
 }

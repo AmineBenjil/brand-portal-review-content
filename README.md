@@ -34,15 +34,18 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
 - **Timestamped feedback** — send with the arrow button or Enter; the note
   stacks under "Feedback" with its timestamp pill. Clicking a note's pill
   seeks the video to that moment. The pill's × sends without a timestamp.
-- **Clip navigation** — the circular arrows step through clips and across
-  creators (badge, caption, duration and per-clip feedback follow), and the
-  thumbnail strip under the video jumps straight to any clip (selected thumb
-  shows the check overlay). Arrow keys work too when not typing.
-- **Creator pager** — the ‹ n/4 › pager in the panel's "Review drafts" header
-  flips between creators; arrows disable at either end of the queue.
-- **Decisions** — Approve / Decline / Request changes (enabled once the
-  creator has feedback) record the outcome, advance to the next undecided
-  creator, and update the dashboard row's status after the modal closes.
+- **Draft navigation** — the circular arrows flanking the video step through
+  the current creator's drafts (badge, caption, duration and per-draft
+  feedback follow), and the "Drafts" thumbnails in the panel jump straight to
+  any draft (selected thumb shows a purple ring). Arrow keys work too when
+  not typing.
+- **Creator pager** — the ‹ n/4 › pager in the panel's "Review" header flips
+  between creators; arrows disable at either end of the queue.
+- **Decisions** — Approve / Request changes decide the current draft, stamp
+  its thumbnail (green check / orange changes icon), and advance to the next
+  undecided draft. Decided drafts lock their CTAs at 20% opacity — no second
+  action on top. A creator's dashboard row updates once every draft is
+  decided.
 - **Dashboard** — clicking a creator row with a submission reopens the
   review at that creator; Esc or the × closes it.
 

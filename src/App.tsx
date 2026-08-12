@@ -4,13 +4,14 @@ import { ReviewModal } from './components/ReviewModal'
 import { reviewQueue } from './data'
 import type { FeedbackMessage } from './data'
 
-export type Decision = 'approved' | 'declined' | 'changes'
+export type Decision = 'approved' | 'changes'
 
 export default function App() {
   const [reviewOpen, setReviewOpen] = useState(false)
   const [creatorIdx, setCreatorIdx] = useState(0)
   const [clipIdx, setClipIdx] = useState(0)
   const [feedback, setFeedback] = useState<Record<string, FeedbackMessage[]>>({})
+  // Decisions are per draft (clip id). Once a draft is decided it stays locked.
   const [decisions, setDecisions] = useState<Record<string, Decision>>({})
   const nextMessageId = useRef(1)
 
@@ -47,65 +48,54 @@ export default function App() {
   const decide = useCallback(
     (decision: Decision) => {
       const creator = reviewQueue[creatorIdx]
-      const nextDecisions = { ...decisions, [creator.id]: decision }
+      const clip = creator.clips[clipIdx]
+      const nextDecisions = { ...decisions, [clip.id]: decision }
       setDecisions(nextDecisions)
-      // Advance forward to the next creator still awaiting a decision
-      // (wrapping around), else close the review.
-      let remaining = -1
-      for (let offset = 1; offset < reviewQueue.length; offset++) {
-        const i = (creatorIdx + offset) % reviewQueue.length
-        if (!nextDecisions[reviewQueue[i].id]) {
-          remaining = i
-          break
-        }
-      }
-      if (remaining >= 0) {
-        setCreatorIdx(remaining)
-        setClipIdx(0)
-      } else {
-        setReviewOpen(false)
-      }
-    },
-    [creatorIdx, decisions],
-  )
-
-  const flatIndex = useMemo(() => {
-    // Global clip position, used by the arrow buttons to cross creator boundaries.
-    let before = 0
-    for (let i = 0; i < creatorIdx; i++) before += reviewQueue[i].clips.length
-    return before + clipIdx
-  }, [creatorIdx, clipIdx])
-
-  const totalClips = useMemo(() => reviewQueue.reduce((n, c) => n + c.clips.length, 0), [])
-
-  const step = useCallback(
-    (delta: 1 | -1) => {
-      const target = flatIndex + delta
-      if (target < 0 || target >= totalClips) return
-      let rest = target
-      for (let i = 0; i < reviewQueue.length; i++) {
-        if (rest < reviewQueue[i].clips.length) {
-          setCreatorIdx(i)
-          setClipIdx(rest)
+      // Advance to the next undecided draft of this creator, else to the next
+      // creator (wrapping) with drafts still awaiting a decision, else close.
+      for (let offset = 1; offset < creator.clips.length; offset++) {
+        const i = (clipIdx + offset) % creator.clips.length
+        if (!nextDecisions[creator.clips[i].id]) {
+          setClipIdx(i)
           return
         }
-        rest -= reviewQueue[i].clips.length
       }
+      for (let offset = 1; offset <= reviewQueue.length; offset++) {
+        const i = (creatorIdx + offset) % reviewQueue.length
+        const undecided = reviewQueue[i].clips.findIndex((c) => !nextDecisions[c.id])
+        if (undecided >= 0) {
+          setCreatorIdx(i)
+          setClipIdx(undecided)
+          return
+        }
+      }
+      setReviewOpen(false)
     },
-    [flatIndex, totalClips],
+    [creatorIdx, clipIdx, decisions],
   )
+
+  // A creator's dashboard row flips once every draft has a decision.
+  const creatorDecisions = useMemo(() => {
+    const map: Record<string, Decision> = {}
+    for (const creator of reviewQueue) {
+      if (creator.clips.every((c) => decisions[c.id])) {
+        map[creator.id] = creator.clips.some((c) => decisions[c.id] === 'changes')
+          ? 'changes'
+          : 'approved'
+      }
+    }
+    return map
+  }, [decisions])
 
   return (
     <>
-      <Dashboard onOpenReview={openReview} decisions={decisions} />
+      <Dashboard onOpenReview={openReview} decisions={creatorDecisions} />
       {reviewOpen && (
         <ReviewModal
           creatorIdx={creatorIdx}
           clipIdx={clipIdx}
           feedback={feedback}
-          canGoPrev={flatIndex > 0}
-          canGoNext={flatIndex < totalClips - 1}
-          onStep={step}
+          decisions={decisions}
           onSelectCreator={goToCreator}
           onSelectClip={goToClip}
           onAddFeedback={addFeedback}

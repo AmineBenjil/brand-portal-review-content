@@ -10,11 +10,13 @@ Pixel-perfect Vite + React 19 + TypeScript prototype of Benable's Brand Portal
 Plain CSS (no Tailwind — deliberate). Dev: `npm run dev` → http://localhost:5173.
 GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 
-## Figma sources (current = v3)
+## Figma sources (current = v4 modal, v3 dashboard)
 
+- v4 modal: page `12292:172790`, overlay `12292:173065`, left stage `12292:173068`,
+  right panel `12292:173088` (Drafts section, per-draft decisions, no Decline)
 - v3 dashboard page: node `12278:171670` (78%, Review drafts funnel stage, CTA rows)
-- v2 modal: page `12274:169758`, overlay `12274:170033`, right panel `12275:170273`
-  (Review drafts topbar + pager, thumbnail strip)
+- v2 modal (superseded): page `12274:169758`, overlay `12274:170033`, right panel
+  `12275:170273`
 - v1 (superseded): `12264:129746` / `12271:169242` / `12271:169266`
 - Design canvas is 1512×1024; layout uses left/right anchoring so it's exact at
   that size and stretches sensibly elsewhere. `min-width: 1280px`, `overflow: hidden`.
@@ -27,20 +29,25 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
   mention/hashtag tones}. `dashboardCreators`: 8 table rows (3 with reviewId →
   CTA rows, 1 avatar-less "Sourcing" placeholder row).
 - `src/App.tsx` — state owner: reviewOpen (starts false), creatorIdx, clipIdx,
-  feedback per clipId, decisions per creatorId, flat clip stepping (`step`),
-  decide() advances forward-with-wrap to next undecided creator, else closes.
+  feedback per clipId, decisions per CLIP id ('approved' | 'changes').
+  decide() advances to the next undecided draft of the creator, else to the
+  next creator with undecided drafts (wrapping), else closes. Dashboard gets
+  derived creator-level decisions (row flips only when all drafts decided;
+  any 'changes' wins over 'approved').
 - `src/components/Dashboard.tsx` — sidebar/header/funnel/creators table/side
   cards. Local `reviewFilter` state: clicking the "Review drafts" funnel bar
   filters table to reviewId rows. `decisionLabel()` swaps row status after a
   decision. Funnel stages are a const array at the top.
-- `src/components/ReviewModal.tsx` — the whole modal. Topbar pager ‹ n/4 ›,
-  creator info, caption, feedback list + composer (timestamp pill), footer
-  Decline / Request changes (needs feedback) / Approve. Also: thumbnail strip,
-  1s skeleton on flips (`skeleton: 'none'|'video'|'full'` — full on creator
-  change, video-only on clip change), approve overlay (1.4s animated check,
-  then onDecide), decline prompt (DECLINE_VARIANT const: 'sheet' default,
-  '?decline=center' URL param → centered dialog; submit records reason as
-  feedback + declines).
+- `src/components/ReviewModal.tsx` — the whole modal (v4). Topbar "Review" +
+  ‹ n/4 › creator pager; stage arrows flip DRAFTS within the creator (disabled
+  at ends); panel: creator info, caption, "n Drafts" thumbnail row (85×110,
+  selected = 2px purple ::after ring, decision icon 24px top-right — green
+  check approved / orange changes), divider, feedback list + composer
+  (timestamp pill), footer Request changes / Approve (both disabled at 0.2
+  opacity once the draft is decided). 1s skeleton on flips ('full' on creator
+  change, 'video' on clip change), approve overlay (1.4s animated check, then
+  onDecide). Decline flow removed in v4. Feedback section kept from v2 (the
+  v4 mock leaves that area empty — deliberate carry-over, not in the mock).
 - `src/components/VideoPane.tsx` — <video> + IG badge + sound + play overlay +
   control bar (scrub via pointer capture). Publishes clock via rAF into store.
 - `src/videoTime.ts` — VideoTimeStore (useSyncExternalStore pub/sub) so only the
@@ -98,6 +105,14 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
    check overlay, 1s skeletons on creator/clip flips.
 6. Mock cursor from Figma (`12271:169247`) intentionally omitted; every creator
    handle is `@maya.skin` (design mock data, kept verbatim).
+7. **v4 modal** — thumbnails moved from under the video into a "n Drafts"
+   section under the caption (85×110, decision icons `draft-approved.svg` /
+   `draft-changes.svg` — 24px exports with baked-in shadow, circle at (4,3));
+   video up to 336×598 centered (no thumbs below); stage arrows now switch
+   drafts, topbar pager switches creators; Decline CTA + prompt removed —
+   footer is Request changes (flex-1, h46) / Approve (197×44); decisions are
+   per draft and lock the CTAs at 0.2 opacity on revisit; request-changes no
+   longer requires feedback.
 
 ## Conventions when editing
 
