@@ -12,6 +12,8 @@ const CHANGE_CHIPS = ['Caption tweak', 'Different cover frame', 'Text on screen'
 /** Drafts carousel geometry: 85px thumbs, 10px gap, viewport from x=20 to the panel edge. */
 const THUMB_STEP = 95
 const CAROUSEL_VIEWPORT = 390
+/** Scrolled fully right, the last thumb keeps this much air from the panel edge. */
+const CAROUSEL_END_PAD = 20
 
 type Props = {
   creatorIdx: number
@@ -72,7 +74,10 @@ export function ReviewModal({
   const decided = decisions[clip.id]
 
   // With more than four drafts the row overflows the panel; arrows page it.
-  const maxDraftScroll = Math.max(0, creator.clips.length * THUMB_STEP - 10 - CAROUSEL_VIEWPORT)
+  const maxDraftScroll = Math.max(
+    0,
+    creator.clips.length * THUMB_STEP - 10 - (CAROUSEL_VIEWPORT - CAROUSEL_END_PAD),
+  )
   const scrollDrafts = (dir: 1 | -1) =>
     setDraftScroll((s) => Math.min(maxDraftScroll, Math.max(0, s + dir * THUMB_STEP)))
 
@@ -86,8 +91,9 @@ export function ReviewModal({
     const left = clipIdx * THUMB_STEP
     const right = left + THUMB_STEP - 10
     setDraftScroll((s) => {
+      const visible = CAROUSEL_VIEWPORT - CAROUSEL_END_PAD
       if (left < s) return left
-      if (right > s + CAROUSEL_VIEWPORT) return Math.min(maxDraftScroll, right - CAROUSEL_VIEWPORT)
+      if (right > s + visible) return Math.min(maxDraftScroll, right - visible)
       return s
     })
   }, [clipIdx, maxDraftScroll])
