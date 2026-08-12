@@ -46,6 +46,11 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
   undecided draft. Decided drafts lock their CTAs at 20% opacity — no second
   action on top. A creator's dashboard row updates once every draft is
   decided.
+- **Request changes prompt** — a slide-up sheet over the right panel with an
+  autofocused note box, quick-fill chips (Caption tweak, Different cover
+  frame, …), and a Send button that wakes on the first typed character.
+  Sending records the note as feedback, plays the animated check
+  ("Changes requested"), then locks the draft.
 - **Dashboard** — clicking a creator row with a submission reopens the
   review at that creator; Esc or the × closes it.
 

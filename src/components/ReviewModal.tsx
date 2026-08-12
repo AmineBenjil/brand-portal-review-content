@@ -6,6 +6,9 @@ import { VideoTimeStore, useVideoTime, formatTime } from '../videoTime'
 import { VideoPane } from './VideoPane'
 import type { VideoApi } from './VideoPane'
 
+/** Quick-fill suggestions in the "Request changes" prompt (Figma 12289:172657). */
+const CHANGE_CHIPS = ['Caption tweak', 'Different cover frame', 'Text on screen', 'Trim or reorder clips']
+
 type Props = {
   creatorIdx: number
   clipIdx: number
@@ -38,7 +41,10 @@ export function ReviewModal({
 
   const [draft, setDraft] = useState('')
   const [pillVisible, setPillVisible] = useState(true)
-  const [approving, setApproving] = useState(false)
+  const [confirming, setConfirming] = useState<Decision | null>(null)
+  const [changesOpen, setChangesOpen] = useState(false)
+  const [changesText, setChangesText] = useState('')
+  const changesRef = useRef<HTMLTextAreaElement>(null)
   const [skeleton, setSkeleton] = useState<'none' | 'video' | 'full'>('none')
   const listRef = useRef<HTMLDivElement>(null)
   const prevCreator = useRef(creatorIdx)
@@ -66,6 +72,8 @@ export function ReviewModal({
   useEffect(() => {
     setDraft('')
     setPillVisible(true)
+    setChangesOpen(false)
+    setChangesText('')
   }, [clip.id])
 
   // Keep the newest feedback in view.
@@ -77,7 +85,13 @@ export function ReviewModal({
   // Keyboard: Esc closes, arrows flip between this creator's drafts when not typing.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        if (changesOpen) {
+          setChangesOpen(false)
+          return
+        }
+        onClose()
+      }
       const typing = document.activeElement?.tagName === 'TEXTAREA'
       if (typing) return
       if (e.key === 'ArrowRight' && clipIdx < creator.clips.length - 1) onSelectClip(clipIdx + 1)
@@ -85,7 +99,7 @@ export function ReviewModal({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, onSelectClip, clipIdx, creator.clips.length])
+  }, [onClose, onSelectClip, clipIdx, creator.clips.length, changesOpen])
 
   const send = () => {
     const text = draft.trim()
@@ -96,12 +110,27 @@ export function ReviewModal({
     setPillVisible(true)
   }
 
-  const approve = () => {
-    setApproving(true)
+  // Animated check overlay (1.4s), then the decision lands.
+  const confirmDecision = (decision: Decision) => {
+    setConfirming(decision)
     approveTimer.current = window.setTimeout(() => {
-      setApproving(false)
-      onDecide('approved')
+      setConfirming(null)
+      onDecide(decision)
     }, 1400)
+  }
+
+  const submitChanges = () => {
+    const text = changesText.trim()
+    if (!text) return
+    onAddFeedback(clip.id, text, null)
+    setChangesOpen(false)
+    setChangesText('')
+    confirmDecision('changes')
+  }
+
+  const fillChip = (chip: string) => {
+    setChangesText((t) => (t.trim() ? `${t.replace(/\s+$/, '')}, ${chip.toLowerCase()}` : chip))
+    changesRef.current?.focus()
   }
 
   const seekTo = (t: number) => {
@@ -330,17 +359,21 @@ export function ReviewModal({
           <div className="panel-footer">
             <button
               className="footer-changes"
-              disabled={!!decided || approving}
-              onClick={() => onDecide('changes')}
+              disabled={!!decided || !!confirming}
+              onClick={() => setChangesOpen(true)}
             >
               Request changes
             </button>
-            <button className="footer-approve" disabled={!!decided || approving} onClick={approve}>
+            <button
+              className="footer-approve"
+              disabled={!!decided || !!confirming}
+              onClick={() => confirmDecision('approved')}
+            >
               Approve
             </button>
           </div>
 
-          {approving && (
+          {confirming && (
             <div className="approve-overlay">
               <svg className="approve-check" viewBox="0 0 64 64" fill="none">
                 <circle className="approve-check-circle" cx="32" cy="32" r="29" stroke="#3caa70" strokeWidth="4" />
@@ -353,13 +386,60 @@ export function ReviewModal({
                   strokeLinejoin="round"
                 />
               </svg>
-              <p className="approve-overlay-title">Approved</p>
+              <p className="approve-overlay-title">
+                {confirming === 'approved' ? 'Approved' : 'Changes requested'}
+              </p>
               <p className="approve-overlay-sub">
-                We’ll let {creator.firstName} know and get this scheduled.
+                {confirming === 'approved'
+                  ? `We’ll let ${creator.firstName} know and get this scheduled.`
+                  : `Your notes are on the way to ${creator.firstName} — we’ll email you when the new draft lands.`}
               </p>
             </div>
           )}
         </div>
+
+        {changesOpen && (
+          <div className="changes-scrim" onClick={() => setChangesOpen(false)}>
+            <div className="changes-card" onClick={(e) => e.stopPropagation()}>
+              <span className="changes-icon">🖊️</span>
+              <p className="changes-title">What should change?</p>
+              <p className="changes-sub">
+                Small tweaks are more welcomed by creators. Need something <strong>re-filmed?</strong>{' '}
+                That’s a bigger ask<strong>.</strong> Creators would need another visit.
+              </p>
+              <textarea
+                ref={changesRef}
+                className="changes-textarea"
+                placeholder={`Add your feedback — we’ll pass it straight to ${creator.firstName}`}
+                value={changesText}
+                autoFocus
+                onChange={(e) => setChangesText(e.target.value)}
+                onKeyDown={(e) => {
+                  const isEnter = e.key === 'Enter' || e.key === 'Return' || e.keyCode === 13
+                  if (isEnter && !e.shiftKey) {
+                    e.preventDefault()
+                    submitChanges()
+                  }
+                }}
+              />
+              <div className="changes-chips">
+                {CHANGE_CHIPS.map((chip) => (
+                  <button key={chip} className="changes-chip" onClick={() => fillChip(chip)}>
+                    {chip}
+                  </button>
+                ))}
+              </div>
+              <div className="changes-footer">
+                <button className="changes-send" disabled={!changesText.trim()} onClick={submitChanges}>
+                  Send
+                </button>
+                <button className="changes-cancel" onClick={() => setChangesOpen(false)}>
+                  Keep reviewing
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

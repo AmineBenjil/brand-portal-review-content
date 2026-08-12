@@ -14,6 +14,8 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 
 - v4 modal: page `12292:172790`, overlay `12292:173065`, left stage `12292:173068`,
   right panel `12292:173088` (Drafts section, per-draft decisions, no Decline)
+- v4 request-changes prompt: `12289:172657` (410×486 sheet: 🖊️ icon, chips,
+  Send, Keep reviewing)
 - v3 dashboard page: node `12278:171670` (78%, Review drafts funnel stage, CTA rows)
 - v2 modal (superseded): page `12274:169758`, overlay `12274:170033`, right panel
   `12275:170273`
@@ -48,6 +50,14 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
   change, 'video' on clip change), approve overlay (1.4s animated check, then
   onDecide). Decline flow removed in v4. Feedback section kept from v2 (the
   v4 mock leaves that area empty — deliberate carry-over, not in the mock).
+  Request changes opens a slide-up sheet (`changes-*` classes, Figma
+  `12289:172657`, 410×486 over the right panel): autofocused textarea
+  (strong border on :focus), 4 quick-fill chips (append to text), Send wakes
+  on first character (else 0.2 opacity), Enter sends; submit records the
+  reason as feedback (no timestamp), then the same check overlay runs with
+  "Changes requested" copy before the decision locks in. The check overlay is
+  shared: `confirming: Decision | null` picks Approved / Changes-requested
+  title + sub.
 - `src/components/VideoPane.tsx` — <video> + IG badge + sound + play overlay +
   control bar (scrub via pointer capture). Publishes clock via rAF into store.
 - `src/videoTime.ts` — VideoTimeStore (useSyncExternalStore pub/sub) so only the
