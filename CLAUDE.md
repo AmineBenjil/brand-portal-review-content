@@ -10,10 +10,12 @@ Pixel-perfect Vite + React 19 + TypeScript prototype of Benable's Brand Portal
 Plain CSS (no Tailwind — deliberate). Dev: `npm run dev` → http://localhost:5173.
 GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 
-## Figma sources (current = v4 modal, v3 dashboard)
+## Figma sources (current = v5 panel, v4 modal shell, v3 dashboard)
 
+- v5 right panel: page `12295:173210`, panel `12295:173508` (creator → Drafts
+  carousel → Caption order, "Drafts (n)" header with pager, corner icons)
 - v4 modal: page `12292:172790`, overlay `12292:173065`, left stage `12292:173068`,
-  right panel `12292:173088` (Drafts section, per-draft decisions, no Decline)
+  right panel `12292:173088` (superseded by v5 panel layout)
 - v4 request-changes prompt: `12289:172657` (410×486 sheet: 🖊️ icon, chips,
   Send, Keep reviewing) — the ONLY feedback entry point (panel composer removed)
 - v3 dashboard page: node `12278:171670` (78%, Review drafts funnel stage, CTA rows)
@@ -25,8 +27,10 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 
 ## File map (all small; read only what you need)
 
-- `src/data.ts` — ALL demo content. `reviewQueue`: 4 creators (emery ×3 clips,
-  quinn ×3, carter ×2 — carter's clip ids/files are `jasper-*`, julian ×1), each
+- `src/data.ts` — ALL demo content. `reviewQueue`: 4 creators (emery ×5 clips
+  — 4 and 5 reuse emery-2/3 footage as "alternate takes" so the carousel has
+  overflow; quinn ×3, carter ×2 — carter's clip ids/files are `jasper-*`,
+  julian ×1), each
   clip = {id, badge IG Reel/Story, src, poster, duration:8, caption segments with
   mention/hashtag tones}. `dashboardCreators`: 8 table rows (3 with reviewId →
   CTA rows, 1 avatar-less "Sourcing" placeholder row).
@@ -40,16 +44,21 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
   cards. Local `reviewFilter` state: clicking the "Review drafts" funnel bar
   filters table to reviewId rows. `decisionLabel()` swaps row status after a
   decision. Funnel stages are a const array at the top.
-- `src/components/ReviewModal.tsx` — the whole modal (v4). Topbar "Review" +
-  ‹ n/4 › creator pager; stage arrows flip DRAFTS within the creator (disabled
-  at ends); panel: creator info, caption, "n Drafts" thumbnail row (85×110,
-  selected = 2px purple ::after ring, decision icon top-right — 24px SVG
-  scaled to 30px + CSS drop-shadow lift; green check approved / orange
-  changes), then a Feedback section (divider + head + list, absolutely
-  positioned at 371/383/406px) that renders ONLY when the draft has notes.
-  No composer in the panel — feedback is written solely in the
-  request-changes sheet. Footer Request changes / Approve (both disabled at
-  0.2 opacity once the draft is decided). 1s skeleton on flips ('full' on creator
+- `src/components/ReviewModal.tsx` — the whole modal (v5 panel). Topbar
+  "Review" + ‹ n/4 › creator pager; stage arrows flip DRAFTS within the
+  creator (disabled at ends). Panel order (absolute layout): creator (68),
+  "Drafts (n)" header (117, count in #aaa, 12px pager arrows right), drafts
+  carousel (viewport 131..261, left 20 → panel edge so a 5th thumb peeks
+  clipped; track top 14px inside for icon headroom; steps 95px via
+  `draftScroll`, clamped to `maxDraftScroll`, resets per creator,
+  auto-scrolls to keep the selected thumb visible), caption (271). Thumbs
+  85×110, selected = 2px purple ::after ring, decision icon straddles the
+  top-right corner (24px SVG at top -9/right -10 → 16px circle at -6/-6,
+  CSS drop-shadow lift). Feedback section (divider/head/list at 371/383/406)
+  renders ONLY when the draft has notes; no composer in the panel — feedback
+  is written solely in the request-changes sheet. Footer Request changes /
+  Approve (both disabled at 0.2 opacity once the draft is decided). 1s
+  skeleton on flips ('full' on creator
   change, 'video' on clip change), approve overlay (1.4s animated check, then
   onDecide). Decline flow removed in v4. Feedback section kept from v2 (the
   v4 mock leaves that area empty — deliberate carry-over, not in the mock).

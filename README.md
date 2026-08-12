@@ -34,9 +34,11 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
   appears once a note exists).
 - **Draft navigation** — the circular arrows flanking the video step through
   the current creator's drafts (badge, caption, duration and per-draft
-  feedback follow), and the "Drafts" thumbnails in the panel jump straight to
-  any draft (selected thumb shows a purple ring). Arrow keys work too when
-  not typing.
+  feedback follow), and the "Drafts (n)" thumbnails jump straight to any
+  draft (selected thumb shows a purple ring). With more than four drafts the
+  row becomes a carousel — the fifth thumb peeks clipped at the panel edge
+  and the small arrows beside the header page it; it auto-scrolls to keep
+  the selected draft visible. Arrow keys work too when not typing.
 - **Creator pager** — the ‹ n/4 › pager in the panel's "Review" header flips
   between creators; arrows disable at either end of the queue.
 - **Decisions** — Approve / Request changes decide the current draft, stamp

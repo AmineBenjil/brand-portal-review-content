@@ -394,28 +394,12 @@
   height: 12px;
 }
 
-/* Creator identity + caption + feedback heading (flow layout per Figma) */
+/* Creator identity (absolute layout per Figma v5: creator, drafts, caption) */
 
-.panel-info {
+.panel-creator {
   position: absolute;
   left: 20px;
   top: 68px;
-  width: 370px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.panel-sections {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.panel-creator {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -469,7 +453,10 @@
 /* Caption */
 
 .panel-caption {
-  width: 100%;
+  position: absolute;
+  left: 20px;
+  top: 271px;
+  width: 370px;
   height: 88px;
   display: flex;
   flex-direction: column;
@@ -505,12 +492,15 @@
 
 /* Drafts (submitted clips, with decision badges) */
 
-.panel-drafts {
-  width: 100%;
-  margin-top: 4px;
+.drafts-header {
+  position: absolute;
+  left: 20px;
+  top: 117px;
+  width: 370px;
+  height: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .panel-drafts-title {
@@ -520,12 +510,55 @@
   color: var(--default-text-base);
 }
 
-.drafts-row {
-  width: 100%;
-  height: 110px;
+.drafts-count {
+  color: #aaa;
+}
+
+.drafts-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drafts-arrow {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+
+.drafts-arrow img {
+  width: 5.319px;
+  height: 10.004px;
+}
+
+.drafts-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Viewport runs to the panel edge so a fifth thumb peeks through clipped;
+   14px of headroom keeps the corner icons and their shadows unclipped */
+.drafts-carousel {
+  position: absolute;
+  left: 20px;
+  right: 0;
+  top: 131px;
+  height: 130px;
+  overflow: hidden;
+}
+
+.drafts-track {
+  position: absolute;
+  left: 0;
+  top: 14px;
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: transform 0.25s ease;
 }
 
 .draft-thumb {
@@ -535,7 +568,6 @@
   border-radius: 8px;
   padding: 0;
   background: #fff;
-  overflow: hidden;
   flex-shrink: 0;
 }
 
@@ -562,14 +594,14 @@
   pointer-events: none;
 }
 
-/* 24px export scaled to 30px: the visible circle (20px, at 5,3.75) lands
-   4px into the corner; CSS drop shadow adds lift over any poster */
+/* 24px export whose 16px circle sits at (4,3): offsets put the circle at
+   -6/-6, straddling the thumb corner; CSS drop shadow adds lift */
 .draft-thumb-icon {
   position: absolute;
-  top: 0;
-  right: -1px;
-  width: 30px;
-  height: 30px;
+  top: -9px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35));
 }
 

@@ -9,6 +9,10 @@ import type { VideoApi } from './VideoPane'
 /** Quick-fill suggestions in the "Request changes" prompt (Figma 12289:172657). */
 const CHANGE_CHIPS = ['Caption tweak', 'Different cover frame', 'Text on screen', 'Trim or reorder clips']
 
+/** Drafts carousel geometry: 85px thumbs, 10px gap, viewport from x=20 to the panel edge. */
+const THUMB_STEP = 95
+const CAROUSEL_VIEWPORT = 390
+
 type Props = {
   creatorIdx: number
   clipIdx: number
@@ -40,6 +44,7 @@ export function ReviewModal({
   const videoApi = useRef<VideoApi | null>(null)
 
   const [confirming, setConfirming] = useState<Decision | null>(null)
+  const [draftScroll, setDraftScroll] = useState(0)
   const [changesOpen, setChangesOpen] = useState(false)
   const [changesText, setChangesText] = useState('')
   const changesRef = useRef<HTMLTextAreaElement>(null)
@@ -65,6 +70,27 @@ export function ReviewModal({
   const messages = feedback[clip.id] ?? []
   // Once a draft is decided its CTAs stay locked — no second decision on top.
   const decided = decisions[clip.id]
+
+  // With more than four drafts the row overflows the panel; arrows page it.
+  const maxDraftScroll = Math.max(0, creator.clips.length * THUMB_STEP - 10 - CAROUSEL_VIEWPORT)
+  const scrollDrafts = (dir: 1 | -1) =>
+    setDraftScroll((s) => Math.min(maxDraftScroll, Math.max(0, s + dir * THUMB_STEP)))
+
+  // Fresh creator → carousel back to the start.
+  useEffect(() => {
+    setDraftScroll(0)
+  }, [creatorIdx])
+
+  // Keep the selected thumbnail inside the carousel viewport.
+  useEffect(() => {
+    const left = clipIdx * THUMB_STEP
+    const right = left + THUMB_STEP - 10
+    setDraftScroll((s) => {
+      if (left < s) return left
+      if (right > s + CAROUSEL_VIEWPORT) return Math.min(maxDraftScroll, right - CAROUSEL_VIEWPORT)
+      return s
+    })
+  }, [clipIdx, maxDraftScroll])
 
   // Reset composition state whenever the clip changes.
   useEffect(() => {
@@ -188,7 +214,7 @@ export function ReviewModal({
           </div>
 
           {skeleton === 'full' ? (
-            <div className="panel-info" aria-hidden>
+            <div aria-hidden>
               <div className="panel-creator">
                 <span className="skeleton-block skeleton-avatar" />
                 <span className="panel-creator-names">
@@ -196,25 +222,25 @@ export function ReviewModal({
                   <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 72, marginTop: 5 }} />
                 </span>
               </div>
-              <div className="panel-sections">
-                <div className="panel-caption">
-                  <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 48 }} />
-                  <span className="skeleton-block skeleton-line" style={{ width: '100%', marginTop: 8 }} />
-                  <span className="skeleton-block skeleton-line" style={{ width: '92%', marginTop: 6 }} />
-                  <span className="skeleton-block skeleton-line" style={{ width: '65%', marginTop: 6 }} />
+              <div className="drafts-header">
+                <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 52 }} />
+              </div>
+              <div className="drafts-carousel">
+                <div className="drafts-track">
+                  {creator.clips.map((c) => (
+                    <span key={c.id} className="skeleton-block draft-thumb-skeleton" />
+                  ))}
                 </div>
-                <div className="panel-drafts">
-                  <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 52 }} />
-                  <div className="drafts-row">
-                    {creator.clips.map((c) => (
-                      <span key={c.id} className="skeleton-block draft-thumb-skeleton" />
-                    ))}
-                  </div>
-                </div>
+              </div>
+              <div className="panel-caption">
+                <span className="skeleton-block skeleton-line skeleton-line-thin" style={{ width: 48 }} />
+                <span className="skeleton-block skeleton-line" style={{ width: '100%', marginTop: 8 }} />
+                <span className="skeleton-block skeleton-line" style={{ width: '92%', marginTop: 6 }} />
+                <span className="skeleton-block skeleton-line" style={{ width: '65%', marginTop: 6 }} />
               </div>
             </div>
           ) : (
-          <div className="panel-info">
+          <div>
             <div className="panel-creator">
               <span className="panel-creator-avatar">
                 <img src={creator.avatar} alt="" />
@@ -227,44 +253,62 @@ export function ReviewModal({
                 <span className="panel-creator-handle">{creator.handle}</span>
               </span>
             </div>
-            <div className="panel-sections">
-              <div className="panel-caption">
-                <p className="panel-caption-label">Caption</p>
-                <div className="panel-caption-body">
-                  {clip.caption.map((line, i) => (
-                    <p key={i}>
-                      {line.map((seg, j) => (
-                        <span key={j} className={seg.tone ? `caption-${seg.tone}` : undefined}>
-                          {seg.text}
-                        </span>
-                      ))}
-                    </p>
-                  ))}
-                </div>
+            <div className="drafts-header">
+              <p className="panel-drafts-title">
+                Drafts <span className="drafts-count">({creator.clips.length})</span>
+              </p>
+              <div className="drafts-nav">
+                <button
+                  className="drafts-arrow"
+                  disabled={draftScroll <= 0}
+                  onClick={() => scrollDrafts(-1)}
+                  title="Previous drafts"
+                >
+                  <img src="/assets/icons/chevron-12.svg" alt="" className="chev12-left" />
+                </button>
+                <button
+                  className="drafts-arrow"
+                  disabled={draftScroll >= maxDraftScroll}
+                  onClick={() => scrollDrafts(1)}
+                  title="More drafts"
+                >
+                  <img src="/assets/icons/chevron-12.svg" alt="" />
+                </button>
               </div>
-              <div className="panel-drafts">
-                <p className="panel-drafts-title">
-                  {creator.clips.length} {creator.clips.length === 1 ? 'Draft' : 'Drafts'}
-                </p>
-                <div className="drafts-row">
-                  {creator.clips.map((c, i) => (
-                    <button
-                      key={c.id}
-                      className={`draft-thumb${i === clipIdx ? ' is-selected' : ''}`}
-                      title={`Draft ${i + 1}`}
-                      onClick={() => onSelectClip(i)}
-                    >
-                      <img src={c.poster} alt="" className="draft-thumb-img" />
-                      {decisions[c.id] && (
-                        <img
-                          src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
-                          alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
-                          className="draft-thumb-icon"
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
+            </div>
+            <div className="drafts-carousel">
+              <div className="drafts-track" style={{ transform: `translateX(${-draftScroll}px)` }}>
+                {creator.clips.map((c, i) => (
+                  <button
+                    key={c.id}
+                    className={`draft-thumb${i === clipIdx ? ' is-selected' : ''}`}
+                    title={`Draft ${i + 1}`}
+                    onClick={() => onSelectClip(i)}
+                  >
+                    <img src={c.poster} alt="" className="draft-thumb-img" />
+                    {decisions[c.id] && (
+                      <img
+                        src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
+                        alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
+                        className="draft-thumb-icon"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="panel-caption">
+              <p className="panel-caption-label">Caption</p>
+              <div className="panel-caption-body">
+                {clip.caption.map((line, i) => (
+                  <p key={i}>
+                    {line.map((seg, j) => (
+                      <span key={j} className={seg.tone ? `caption-${seg.tone}` : undefined}>
+                        {seg.text}
+                      </span>
+                    ))}
+                  </p>
+                ))}
               </div>
             </div>
           </div>

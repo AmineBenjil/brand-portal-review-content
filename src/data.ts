@@ -80,6 +80,38 @@ export const reviewQueue: Creator[] = [
           [{ text: '#pikora', tone: 'hashtag' }],
         ],
       },
+      // Alternate takes (same shoot, reused footage) — they push Emery past
+      // four drafts so the thumbnail carousel has something to scroll.
+      {
+        id: 'emery-4',
+        badge: 'IG Reel',
+        src: '/videos/emery-2.mp4',
+        poster: '/assets/video/ugc/emery-2.jpg',
+        duration: 8,
+        caption: [
+          [
+            { text: 'Round two with ' },
+            { text: '@holapikora', tone: 'mention' },
+            { text: ' — tried the dewy-finish look this time. Which take wins?' },
+          ],
+          [{ text: '#pikora', tone: 'hashtag' }],
+        ],
+      },
+      {
+        id: 'emery-5',
+        badge: 'IG Reel',
+        src: '/videos/emery-3.mp4',
+        poster: '/assets/video/ugc/emery-3.jpg',
+        duration: 8,
+        caption: [
+          [
+            { text: 'One week update — ' },
+            { text: '@holapikora', tone: 'mention' },
+            { text: ' every single morning. Zero breakouts, all glow.' },
+          ],
+          [{ text: '#pikora', tone: 'hashtag' }],
+        ],
+      },
     ],
   },
   {
