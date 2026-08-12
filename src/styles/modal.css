@@ -313,7 +313,9 @@
   top: 0;
   height: 48px;
   background: #fcfcfc;
-  border-bottom: 0.5px solid var(--default-border-base);
+  /* Figma says 0.5px; browsers snap sub-pixel borders away, so use a real 1px
+     hairline like every other divider in the app. */
+  border-bottom: 1px solid var(--default-border-base);
 }
 
 .topbar-title {
@@ -698,7 +700,7 @@
   right: 0;
   bottom: 0;
   background: #fff;
-  border-top: 0.5px solid var(--default-border-base);
+  border-top: 1px solid var(--default-border-base);
   padding: 16px 20px 20px;
   display: flex;
   align-items: center;

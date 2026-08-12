@@ -116,6 +116,10 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 5. zsh doesn't word-split unquoted vars; use `while read` loops in Bash calls.
 6. Higgsfield batch API may return a preset recommendation instead of submitting
    — resubmit with `declined_preset_id`.
+7. Figma draws dividers as `0.5px` hairlines (e.g. panel topbar `12298:173947`,
+   panel footer). Browsers snap sub-pixel borders away, so they paint as nothing.
+   Always use `1px solid var(--default-border-base)` — that's what every other
+   divider in the app uses. Deliberate deviation from the Figma px value.
 
 ## Decisions log (chronological)
 
