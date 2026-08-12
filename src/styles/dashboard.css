@@ -223,6 +223,30 @@
   height: 165px;
   background: #fff;
   border-bottom: 1px solid #e8e8e8;
+  /* stays fixed while the content below scrolls under it */
+  z-index: 10;
+}
+
+/* ---------- Scrollable content area (everything below the header) ---------- */
+
+.dashboard-scroll {
+  position: absolute;
+  left: 219px;
+  right: 0;
+  top: 165px;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 32px 24px 24px 32px;
+  scrollbar-width: thin;
+}
+
+/* Creators table stretches; 20px gutter to the side cards */
+.dashboard-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 32px;
 }
 
 .back-link {
@@ -346,10 +370,6 @@
 /* ---------- Campaign progress ---------- */
 
 .progress-section {
-  position: absolute;
-  left: 251px;
-  right: 25px;
-  top: 197px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -477,10 +497,9 @@
 /* ---------- Creators card ---------- */
 
 .creators-card {
-  position: absolute;
-  left: 251px;
-  top: 388px;
-  width: 847px;
+  flex: 1;
+  /* at the 1280px app minimum the columns fill exactly: 615 + 20 + 370 */
+  min-width: 615px;
   background: var(--default-bg-body);
   border: 1px solid var(--default-border-base);
   border-radius: var(--radius-lg);
@@ -628,7 +647,7 @@
 
 .creator-order {
   position: absolute;
-  left: calc(50% + 155.5px);
+  right: 155px;
   top: 23px;
   bottom: 23px;
   width: 112px;
@@ -659,10 +678,8 @@
 /* ---------- Right column cards ---------- */
 
 .side-cards {
-  position: absolute;
-  right: 24px;
-  top: 389px;
   width: 370px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -838,9 +855,9 @@
 
 .review-cta {
   position: absolute;
-  left: calc(50% + 235.5px);
+  right: 187px;
   top: calc(50% + 0.5px);
-  transform: translate(-50%, -50%);
+  transform: translate(50%, -50%);
   display: flex;
   align-items: center;
   gap: 4px;

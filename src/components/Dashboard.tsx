@@ -98,6 +98,8 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
         </div>
       </header>
 
+      {/* Scrollable content: progress + tables slide under the fixed header */}
+      <div className="dashboard-scroll">
       {/* Campaign progress */}
       <section className="progress-section">
         <div className="progress-headline">
@@ -138,6 +140,7 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
         </div>
       </section>
 
+      <div className="dashboard-columns">
       {/* Creators card */}
       <section className="creators-card">
         <div className="creators-card-header">
@@ -274,6 +277,8 @@ export function Dashboard({ onOpenReview, decisions }: Props) {
             </div>
           </div>
         </section>
+      </div>
+      </div>
       </div>
     </div>
   )

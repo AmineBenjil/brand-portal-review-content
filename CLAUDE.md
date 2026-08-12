@@ -45,7 +45,14 @@ GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 - `src/components/Dashboard.tsx` — sidebar/header/funnel/creators table/side
   cards. Local `reviewFilter` state: clicking the "Review drafts" funnel bar
   filters table to reviewId rows. `decisionLabel()` swaps row status after a
-  decision. Funnel stages are a const array at the top.
+  decision. Funnel stages are a const array at the top. Layout: sidebar +
+  header are fixed; everything else lives in `.dashboard-scroll` (absolute,
+  below the 165px header, overflow-y auto, padding 32/24/24/32) — progress
+  section in flow, then `.dashboard-columns` (flex, gap 20) with the
+  creators table (flex:1, min-width 615) and side cards (370 fixed). At
+  1512 this reproduces the Figma px exactly (table 847 @ 251); wider
+  windows stretch the table, keeping the 20px gutter. Row status pill/CTA
+  are right-anchored (order right 155, CTA center 187 from row right).
 - `src/components/ReviewModal.tsx` — the whole modal (v5 panel). Topbar
   "Review" + ‹ n/4 › creator pager; stage arrows flip DRAFTS within the
   creator (disabled at ends). Panel order (absolute layout): creator (68),
