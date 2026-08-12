@@ -263,24 +263,26 @@ export function ReviewModal({
               <p className="panel-drafts-title">
                 Drafts <span className="drafts-count">({creator.clips.length})</span>
               </p>
-              <div className="drafts-nav">
-                <button
-                  className="drafts-arrow"
-                  disabled={draftScroll <= 0}
-                  onClick={() => scrollDrafts(-1)}
-                  title="Previous drafts"
-                >
-                  <img src="/assets/icons/chevron-12.svg" alt="" className="chev12-left" />
-                </button>
-                <button
-                  className="drafts-arrow"
-                  disabled={draftScroll >= maxDraftScroll}
-                  onClick={() => scrollDrafts(1)}
-                  title="More drafts"
-                >
-                  <img src="/assets/icons/chevron-12.svg" alt="" />
-                </button>
-              </div>
+              {creator.clips.length > 4 && (
+                <div className="drafts-nav">
+                  <button
+                    className="drafts-arrow"
+                    disabled={draftScroll <= 0}
+                    onClick={() => scrollDrafts(-1)}
+                    title="Previous drafts"
+                  >
+                    <img src="/assets/icons/chevron-12.svg" alt="" className="chev12-left" />
+                  </button>
+                  <button
+                    className="drafts-arrow"
+                    disabled={draftScroll >= maxDraftScroll}
+                    onClick={() => scrollDrafts(1)}
+                    title="More drafts"
+                  >
+                    <img src="/assets/icons/chevron-12.svg" alt="" />
+                  </button>
+                </div>
+              )}
             </div>
             <div className="drafts-carousel">
               <div className="drafts-track" style={{ transform: `translateX(${-draftScroll}px)` }}>
