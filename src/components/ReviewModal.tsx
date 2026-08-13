@@ -145,13 +145,13 @@ export function ReviewModal({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose, onSelectClip, clipIdx, creator.clips.length, changesOpen])
 
-  // Animated check overlay (1.4s), then the decision lands.
+  // Animated check overlay — long enough to read the title + sub, then the decision lands.
   const confirmDecision = (decision: Decision) => {
     setConfirming(decision)
     approveTimer.current = window.setTimeout(() => {
       setConfirming(null)
       onDecide(decision)
-    }, 1400)
+    }, 2500)
   }
 
   const submitChanges = () => {
@@ -236,6 +236,7 @@ export function ReviewModal({
             </button>
           </div>
 
+          <div className="panel-scroll" ref={listRef}>
           {skeleton === 'full' ? (
             <div aria-hidden>
               <div className="panel-creator">
@@ -361,7 +362,7 @@ export function ReviewModal({
                   <div className="panel-feedback-head">
                     <p className="panel-feedback-title">Feedback</p>
                   </div>
-                  <div className="feedback-list" ref={listRef}>
+                  <div className="feedback-list">
                     {messages.map((m) => (
                       <div key={m.id} className="feedback-message">
                         <span className="feedback-message-text">{m.text}</span>
@@ -372,6 +373,7 @@ export function ReviewModal({
               )}
             </div>
           )}
+          </div>
 
           {/* Footer: CTAs while undecided; a status line once the draft is decided (v6) */}
           <div className={`panel-footer${decided ? ' is-decided' : ''}`}>
@@ -385,29 +387,22 @@ export function ReviewModal({
                 draft is ready.
               </p>
             ) : (
-              <>
-                {!confirming && (
-                  <p className="panel-nudge">
-                    {creator.firstName}’s excited to post — most brands review within a day or two 💛
-                  </p>
-                )}
-                <div className="panel-footer-cta">
-                  <button
-                    className="footer-changes"
-                    disabled={!!confirming}
-                    onClick={() => setChangesOpen(true)}
-                  >
-                    Request changes
-                  </button>
-                  <button
-                    className="footer-approve"
-                    disabled={!!confirming}
-                    onClick={() => confirmDecision('approved')}
-                  >
-                    Approve
-                  </button>
-                </div>
-              </>
+              <div className="panel-footer-cta">
+                <button
+                  className="footer-changes"
+                  disabled={!!confirming}
+                  onClick={() => setChangesOpen(true)}
+                >
+                  Request changes
+                </button>
+                <button
+                  className="footer-approve"
+                  disabled={!!confirming}
+                  onClick={() => confirmDecision('approved')}
+                >
+                  Approve
+                </button>
+              </div>
             )}
           </div>
 

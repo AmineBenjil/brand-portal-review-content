@@ -87,29 +87,34 @@ clips as stand-ins.
   are right-anchored (order right 155, CTA center 187 from row right).
 - `src/components/ReviewModal.tsx` — the whole modal (v6 panel states). Topbar
   "Review" + ‹ n/4 › creator pager; stage arrows flip DRAFTS within the
-  creator (disabled at ends). Panel order (absolute layout): creator (68),
-  "Drafts (n)" header (124, count in #aaa, 12px pager arrows right), drafts
-  carousel (viewport left 18 → panel edge, top 138 h146, so a 5th thumb peeks
-  clipped; track left 2/top 14 inside for ring + icon headroom; steps 95px via
-  `draftScroll`, clamped to `maxDraftScroll`, resets per creator,
-  auto-scrolls to keep the selected thumb visible), caption (298). Thumbs
-  85×110 at panel x20/y152: every thumb has a 0.2 dim + centered play glyph
-  (`thumb-play.svg` 8.93×8, CSS-rotated 90°) + a 10px type label hanging at
-  top 118 (`clip.badge`; #aaa, selected #1c1c1c); selected = 1.5px #aa97ff
-  ring floating 2px OUTSIDE the thumb (::after inset -2, radius 10) + 0 4 12
-  shadow; decided thumbs deepen the dim to 0.3 + status icon in the top-right
-  corner (28px SVG at top 1/right 0 → 20px circle at 4/4, shadow baked into
-  the export — `draft-approved.svg` / `draft-changes.svg`). `.panel-below`
-  (top 402) holds the pre-check grey card (`.precheck`: #f9f9f9, 1px #efefef,
-  radius 12, green `precheck-tick.svg` ticks — no foot line since v6) then
-  the Feedback list, ONLY when the draft has notes; no composer in the panel.
-  Footer: undecided = nudge + Request changes / Approve CTAs (disabled only
-  while confirming); decided = `.is-decided` grey rail (h82, #f9f9f9) with
+  creator (disabled at ends). Everything between the 48px topbar and the 82px
+  footer lives in ONE `.panel-scroll` (absolute 48→82, overflow-y auto) and
+  scrolls together under the header; inside it, flow layout with margins that
+  reproduce the Figma px: creator (mt20, 40px avatar), "Drafts (n)" header
+  (mt16, count in #aaa, 12px pager arrows right), drafts carousel (block,
+  ml16 + track left 4/top 14 for ring + icon headroom, mt-2 so thumbs sit
+  12px under the header, h146; runs to the panel edge so a 5th thumb peeks
+  clipped; steps 95px via `draftScroll`, clamped to `maxDraftScroll`, resets
+  per creator, auto-scrolls to keep the selected thumb visible), caption
+  (mt14, AUTO height), `.panel-below` (mt16 — pre-checks always ride a fixed
+  16px under the caption's last line). Thumbs 85×110: every thumb has a 0.2
+  dim + centered play glyph (`thumb-play.svg` 8.93×8, CSS-rotated 90°) + a
+  10px type label hanging at top 118 (`clip.badge`; #aaa, selected #1c1c1c);
+  selected = 1.5px #aa97ff ring with a 2px CLEAR GAP off every side (::after
+  inset -3.5, radius 12) + 0 4 12 shadow; decided thumbs deepen the dim to
+  0.3 + status icon in the top-right corner (28px SVG at top 1/right 0 →
+  20px circle at 4/4, shadow baked into the export — `draft-approved.svg` /
+  `draft-changes.svg`). `.panel-below` holds the pre-check grey card
+  (`.precheck`: #f9f9f9, 1px #efefef, radius 12, green `precheck-tick.svg`
+  ticks — no foot line since v6) then the Feedback list, ONLY when the draft
+  has notes; no composer in the panel. Footer: undecided = Request changes /
+  Approve CTAs (disabled only while confirming; the waiting nudge was
+  removed); decided = `.is-decided` grey rail (h82, #f9f9f9) with
   "🎉 Approved" (🎉 bold, text medium) or "Request sent to {name} — we'll
   email you when the new draft is ready." (296px wrap, lead semibold) — the
   old 0.2-opacity locked CTAs are gone. 1s skeleton on flips ('full' on
-  creator change, 'video' on clip change), approve overlay (1.4s animated
-  check, then onDecide). Request changes opens the v6 slide-up sheet
+  creator change, 'video' on clip change), approve overlay (2.5s animated
+  check — long enough to read the copy — then onDecide). Request changes opens the v6 slide-up sheet
   (`changes-*` classes, Figma `12324:2042`, 410 wide, min-height 532, close X
   top-right): 48px 🖊️ circle, "What should change?", sub "Small tweaks are
   more welcomed by creators. Need something re-filmed? That's a bigger ask.
@@ -163,8 +168,9 @@ clips as stand-ins.
    gradient img sits in its own clipped wrapper (`.stage-gradient-clip`).
    With plain `overflow: hidden`, focus/scrollIntoView scrolls the stage 144px
    and the whole layout shifts. Keep `clip`.
-2. Video frame border is drawn by `.video-frame::after` (inner ring), NOT a CSS
-   border — a real border offsets absolutely-positioned children by 2px vs Figma.
+2. Video frame ring is a spread box-shadow (`0 0 0 2px`) sitting OUTSIDE the
+   frame — NOT a border (offsets absolutely-positioned children) and NOT a
+   pseudo-element (the frame's `overflow: hidden` would clip it).
 3. The browser-pane automation's coordinate clicks can drift (scale bug); trust
    JS/DOM checks (`elementFromPoint`, dispatched events) over missed clicks, and
    the pane's Return key sends key:"" — the app handles Enter||keyCode 13.
@@ -235,6 +241,12 @@ clips as stand-ins.
     ⓘ "One change round included" + Send footer rail; removed "Keep
     reviewing", "Talk to Katie's team →", chip group headers). Feedback list
     kept below the pre-check card — deliberate carry-over, not in the mock.
+11. **v6.1 polish** (user feedback) — video ring moved outside the frame
+    (spread shadow), thumb selection ring gains a 2px clear gap, avatar up to
+    40px (v6 mock size), panel content converted from absolute to one
+    `.panel-scroll` flow surface (caption auto-height, pre-checks pinned 16px
+    below it, whole block scrolls under the header), waiting nudge removed
+    from the footer, decision overlay stretched 1.4s → 2.5s.
 
 ## Conventions when editing
 
