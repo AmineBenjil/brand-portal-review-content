@@ -75,7 +75,7 @@ const productQueue: Creator[] = [
       },
       {
         id: 'emery-2',
-        badge: 'IG Reel',
+        badge: 'TikTok',
         src: '/videos/emery-2.mp4',
         poster: '/assets/video/ugc/emery-2.jpg',
         duration: 8,
@@ -101,7 +101,7 @@ const productQueue: Creator[] = [
       },
       {
         id: 'emery-3',
-        badge: 'IG Reel',
+        badge: 'IG Story',
         src: '/videos/emery-3.mp4',
         poster: '/assets/video/ugc/emery-3.jpg',
         duration: 8,
@@ -155,7 +155,7 @@ const productQueue: Creator[] = [
       },
       {
         id: 'emery-5',
-        badge: 'IG Reel',
+        badge: 'TikTok',
         src: '/videos/emery-3.mp4',
         poster: '/assets/video/ugc/emery-3.jpg',
         duration: 8,
@@ -189,7 +189,7 @@ const productQueue: Creator[] = [
     clips: [
       {
         id: 'quinn-1',
-        badge: 'IG Story',
+        badge: 'IG Reel',
         src: '/videos/quinn-1.mp4',
         poster: '/assets/video/ugc/quinn-1.jpg',
         duration: 8,
@@ -203,13 +203,13 @@ const productQueue: Creator[] = [
         checks: [
           'Shows the product clearly',
           'Tags @pikora',
-          'Link sticker to your shop',
+          'Shop linked in bio',
           'Discloses the partnership',
         ],
         suggestions: [
           {
             label: 'Link the product page',
-            fill: 'Could the link sticker point to the tinted SPF page instead of the shop home?',
+            fill: 'Could the bio link point to the tinted SPF page instead of the shop home?',
           },
           { label: 'Say it’s SPF 50', fill: 'Could the caption say it’s SPF 50?' },
         ],
@@ -243,13 +243,13 @@ const productQueue: Creator[] = [
       },
       {
         id: 'quinn-3',
-        badge: 'IG Story',
+        badge: 'TikTok',
         src: '/videos/quinn-3.mp4',
         poster: '/assets/video/ugc/quinn-3.jpg',
         duration: 8,
         caption: [
           [
-            { text: 'Last slide 👀 Use my code QUINN10 at ' },
+            { text: 'Restock day 👀 Use my code QUINN10 at ' },
             { text: '@holapikora', tone: 'mention' },
           ],
           [{ text: '#pikora', tone: 'hashtag' }],
@@ -257,7 +257,7 @@ const productQueue: Creator[] = [
         checks: [
           'Shows the product clearly',
           'Tags @pikora',
-          'Link sticker to your shop',
+          'Shop linked in bio',
           'Discloses the partnership',
         ],
         suggestions: [
@@ -300,7 +300,7 @@ const productQueue: Creator[] = [
       },
       {
         id: 'jasper-2',
-        badge: 'IG Reel',
+        badge: 'IG Story',
         src: '/videos/jasper-2.mp4',
         poster: '/assets/video/ugc/jasper-2.jpg',
         duration: 8,

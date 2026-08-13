@@ -54,7 +54,10 @@ clips as stand-ins.
 - `src/data.ts` — ALL demo content, keyed by mode. `reviewQueues.product`:
   4 creators (emery ×5 clips — 4 and 5 reuse emery-2/3 footage as "alternate
   takes" so the carousel has overflow; quinn ×3, carter ×2 — carter's clip
-  ids/files are `jasper-*`, julian ×1). `reviewQueues.local`: Maya ×2 (IG
+  ids/files are `jasper-*`, julian ×1). Badges are a MIXED BAG per creator
+  (emery Reel/TikTok/Story/Reel/TikTok, quinn Reel/Story/TikTok, carter
+  Reel/Story, julian Reel) — quinn's link-sticker checks/fills were reworded
+  to bio-link on her non-Story clips. `reviewQueues.local`: Maya ×2 (IG
   Reel + IG Story) + Jade ×1 (TikTok), all
   Trilogy-spa captions verbatim from Julia's REVIEW.local. Each clip =
   {id, badge IG Reel/Story/TikTok, src, poster, duration:8, caption segments,
