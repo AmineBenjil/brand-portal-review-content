@@ -93,9 +93,17 @@ export function VideoPane({ clip, store, apiRef }: Props) {
       />
 
       <div className="video-badge">
-        {/* The IG rings are Instagram-only; TikTok drafts get a text badge
-            (no hand-drawn icons — see CLAUDE.md). */}
-        {clip.badge !== 'TikTok' && (
+        {/* Per-type icons from Figma "Content video tags" (12328:2118) */}
+        {clip.badge === 'TikTok' ? (
+          <span className="ig-icon">
+            <img src="/assets/icons/tiktok-inner.svg" alt="" className="ig-icon-inner" />
+            <img src="/assets/icons/tiktok-outer.svg" alt="" className="tiktok-icon-outer" />
+          </span>
+        ) : clip.badge === 'IG Story' ? (
+          <span className="ig-icon">
+            <img src="/assets/icons/instagram-story.svg" alt="" className="ig-icon-outer" />
+          </span>
+        ) : (
           <span className="ig-icon">
             <img src="/assets/icons/instagram-outer.svg" alt="" className="ig-icon-outer" />
             <img src="/assets/icons/instagram-inner.svg" alt="" className="ig-icon-inner" />

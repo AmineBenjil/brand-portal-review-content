@@ -55,7 +55,7 @@ clips as stand-ins.
   4 creators (emery ×5 clips — 4 and 5 reuse emery-2/3 footage as "alternate
   takes" so the carousel has overflow; quinn ×3, carter ×2 — carter's clip
   ids/files are `jasper-*`, julian ×1). `reviewQueues.local`: Maya ×2 (IG
-  Reel + IG Story) + Jade ×1 (TikTok — text-only badge, no IG rings), all
+  Reel + IG Story) + Jade ×1 (TikTok), all
   Trilogy-spa captions verbatim from Julia's REVIEW.local. Each clip =
   {id, badge IG Reel/Story/TikTok, src, poster, duration:8, caption segments,
   checks[] (Katie's-team pre-checks), suggestions[] {label, fill} (caption-
@@ -139,8 +139,12 @@ clips as stand-ins.
   approved/changes split (all approved / none approved / mixed with counts),
   CTA "Got it!" (click scrim or Esc also dismiss). Styles at the bottom of
   modal.css (`celebrate-*`, `confetti-*`).
-- `src/components/VideoPane.tsx` — <video> + IG badge + sound + play overlay +
+- `src/components/VideoPane.tsx` — <video> + badge + sound + play overlay +
   control bar (scrub via pointer capture). Publishes clock via rAF into store.
+  Badge icon keyed by `clip.badge` (Figma "Content video tags" `12328:2118`):
+  IG Reel = instagram-outer+inner, IG Story = `instagram-story.svg` (single,
+  -3.13% inset like the IG outer), TikTok = `tiktok-inner.svg` + offset
+  `tiktok-outer.svg` (-6.25% inset, `.tiktok-icon-outer`).
 - `src/videoTime.ts` — VideoTimeStore (useSyncExternalStore pub/sub) so only the
   control bar + timestamp pill re-render per frame. `formatTime`.
 - `src/styles/base.css` (tokens + Inter @font-face), `dashboard.css`, `modal.css`.
