@@ -10,8 +10,13 @@ Pixel-perfect Vite + React 19 + TypeScript prototype of Benable's Brand Portal
 Plain CSS (no Tailwind — deliberate). Dev: `npm run dev` → http://localhost:5173.
 GitHub: private repo `AmineBenjil/brand-portal-review-content`, branch `main`.
 
-## Figma sources (current = v5 panel, v4 modal shell, v3 dashboard)
+## Figma sources (current = v6 panel states + sheet, v5 panel, v3 dashboard)
 
+- v6 "Modal updates" section `12324:1921`: request-sent panel `12321:176959`
+  (panel `12321:176980`), approved panel `12324:1922` (footer `12324:1944`),
+  request-changes sheet `12324:2042` (410×532). Brings: type labels under
+  thumbs, floating lavender selection ring, play glyph + dim on every thumb,
+  pre-check grey card, decided-state footer rails, new sheet layout.
 - v5 right panel: page `12295:173210`, panel `12295:173508` (creator → Drafts
   carousel → Caption order, "Drafts (n)" header with pager)
 - v5.1 thumb decision state: page `12298:173629`, thumbs `12298:173959` /
@@ -80,34 +85,47 @@ clips as stand-ins.
   1512 this reproduces the Figma px exactly (table 847 @ 251); wider
   windows stretch the table, keeping the 20px gutter. Row status pill/CTA
   are right-anchored (order right 155, CTA center 187 from row right).
-- `src/components/ReviewModal.tsx` — the whole modal (v5 panel). Topbar
+- `src/components/ReviewModal.tsx` — the whole modal (v6 panel states). Topbar
   "Review" + ‹ n/4 › creator pager; stage arrows flip DRAFTS within the
   creator (disabled at ends). Panel order (absolute layout): creator (68),
-  "Drafts (n)" header (117, count in #aaa, 12px pager arrows right), drafts
-  carousel (viewport 131..261, left 20 → panel edge so a 5th thumb peeks
-  clipped; track top 14px inside for icon headroom; steps 95px via
+  "Drafts (n)" header (124, count in #aaa, 12px pager arrows right), drafts
+  carousel (viewport left 18 → panel edge, top 138 h146, so a 5th thumb peeks
+  clipped; track left 2/top 14 inside for ring + icon headroom; steps 95px via
   `draftScroll`, clamped to `maxDraftScroll`, resets per creator,
-  auto-scrolls to keep the selected thumb visible), caption (271). Thumbs
-  85×110, selected = 2px purple ::after ring; decided thumbs get a 0.3 dark
-  overlay + status icon inset in the top-right corner (28px SVG at top
-  1/right 0 → 20px circle at 4/4, shadow baked into the export — icons are
-  `draft-approved.svg` / `draft-changes.svg`, re-exported at 28px in v5.1).
-  Feedback section (divider/head/list at 371/383/406)
-  renders ONLY when the draft has notes; no composer in the panel — feedback
-  is written solely in the request-changes sheet. Footer Request changes /
-  Approve (both disabled at 0.2 opacity once the draft is decided). 1s
-  skeleton on flips ('full' on creator
-  change, 'video' on clip change), approve overlay (1.4s animated check, then
-  onDecide). Decline flow removed in v4. Feedback section kept from v2 (the
-  v4 mock leaves that area empty — deliberate carry-over, not in the mock).
-  Request changes opens a slide-up sheet (`changes-*` classes, Figma
-  `12289:172657`, 410×486 over the right panel): autofocused textarea
-  (strong border on :focus), 4 quick-fill chips (append to text), Send wakes
-  on first character (else 0.2 opacity), Enter sends; submit records the
-  reason as feedback (no timestamp), then the same check overlay runs with
-  "Changes requested" copy before the decision locks in. The check overlay is
-  shared: `confirming: Decision | null` picks Approved / Changes-requested
-  title + sub.
+  auto-scrolls to keep the selected thumb visible), caption (298). Thumbs
+  85×110 at panel x20/y152: every thumb has a 0.2 dim + centered play glyph
+  (`thumb-play.svg` 8.93×8, CSS-rotated 90°) + a 10px type label hanging at
+  top 118 (`clip.badge`; #aaa, selected #1c1c1c); selected = 1.5px #aa97ff
+  ring floating 2px OUTSIDE the thumb (::after inset -2, radius 10) + 0 4 12
+  shadow; decided thumbs deepen the dim to 0.3 + status icon in the top-right
+  corner (28px SVG at top 1/right 0 → 20px circle at 4/4, shadow baked into
+  the export — `draft-approved.svg` / `draft-changes.svg`). `.panel-below`
+  (top 402) holds the pre-check grey card (`.precheck`: #f9f9f9, 1px #efefef,
+  radius 12, green `precheck-tick.svg` ticks — no foot line since v6) then
+  the Feedback list, ONLY when the draft has notes; no composer in the panel.
+  Footer: undecided = nudge + Request changes / Approve CTAs (disabled only
+  while confirming); decided = `.is-decided` grey rail (h82, #f9f9f9) with
+  "🎉 Approved" (🎉 bold, text medium) or "Request sent to {name} — we'll
+  email you when the new draft is ready." (296px wrap, lead semibold) — the
+  old 0.2-opacity locked CTAs are gone. 1s skeleton on flips ('full' on
+  creator change, 'video' on clip change), approve overlay (1.4s animated
+  check, then onDecide). Request changes opens the v6 slide-up sheet
+  (`changes-*` classes, Figma `12324:2042`, 410 wide, min-height 532, close X
+  top-right): 48px 🖊️ circle, "What should change?", sub "Small tweaks are
+  more welcomed by creators. Need something re-filmed? That's a bigger ask.
+  {tail}" (tail by mode: product "Creators would need to re-film from
+  scratch." / local verbatim "Creators would need another visit."),
+  autofocused textarea (placeholder "Add your feedback — we'll pass it
+  straight to {name}", strong border on :focus), ONE flat chip wrap =
+  clip.suggestions + shared QUICK_FIXES (Caption tweak, Different cover
+  frame, Text on screen, Trim or reorder clips — no emojis/group labels;
+  chips FILL starter sentences), full-bleed footer rail (#fcfcfc, 1px top)
+  with purple `info-16.svg` + "One change round included" above "Send to
+  {name}" (disabled = #c6c6c6 at 0.7 until first character; Enter sends).
+  Removed in v6: "Keep reviewing", "Talk to Katie's team →", chip group
+  headers, mode placeholders, "Goes straight to her" meta line. Submit
+  records the reason as feedback (no timestamp), then the shared check
+  overlay (`confirming: Decision | null`) runs before the decision locks in.
 - `src/components/CelebrationModal.tsx` — "Every draft reviewed!" congrats pop-up.
   Shown by App once ALL drafts across the queue are decided (decide()'s close
   branch sets `celebrating`). Fixed scrim over the dashboard, 440px card,
@@ -130,6 +148,10 @@ clips as stand-ins.
 - `public/assets/**` — every icon/image exported from Figma. NEVER hand-draw
   icons; re-export from Figma. Chevrons are one shape rotated via CSS (.chev-*).
   The eye icon is `icons/campaign-brief.svg` (reused in the Review content CTA).
+  v6 adds `icons/precheck-tick.svg` (green #18906C 12px check),
+  `icons/thumb-play.svg` (white triangle, CSS-rotated 90°), `icons/info-16.svg`
+  (purple #7A5CFA ⓘ). Figma exports carry `preserveAspectRatio="none"` — size
+  imgs to the SVG's own ratio or they stretch.
 - `public/videos/*.mp4` — 9 AI clips: Higgsfield Soul 2.0 stills → Seedance 2.0
   image-to-video, 8s, 720×1280, AAC speech audio, one consistent woman per
   creator. Stills = `public/assets/video/ugc/*.jpg` (used as posters AND thumbs).
@@ -202,6 +224,17 @@ clips as stand-ins.
    "Sent to {name}."). The sheet is flow-layout now (min-height 486, grows).
    NOT implemented (no surface in this prototype): §6 Confirm-visit /
    Ship-and-add-tracking modals, rail NEXT_HINTS, approved-state note input.
+10. **v6 modal states** (Figma section `12324:1921`) — thumbs gained type
+    labels + play glyph + always-on dim + floating lavender selection ring;
+    pre-checks became a grey card (foot line dropped); decided drafts swap
+    the footer CTAs for status rails ("🎉 Approved" / "Request sent to
+    {name} — …"); request-changes sheet rebuilt (410×532: new sub copy with
+    mode-keyed re-film tail — the mock's "another visit" line kept verbatim
+    for local, product uses "re-film from scratch" to respect mode vocab —
+    name-based placeholder, one flat chip wrap keeping the fill treatment,
+    ⓘ "One change round included" + Send footer rail; removed "Keep
+    reviewing", "Talk to Katie's team →", chip group headers). Feedback list
+    kept below the pre-check card — deliberate carry-over, not in the mock.
 
 ## Conventions when editing
 

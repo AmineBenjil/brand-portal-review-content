@@ -461,7 +461,7 @@
 .panel-caption {
   position: absolute;
   left: 20px;
-  top: 271px;
+  top: 298px;
   width: 370px;
   height: 88px;
   display: flex;
@@ -501,7 +501,7 @@
 .drafts-header {
   position: absolute;
   left: 20px;
-  top: 117px;
+  top: 124px;
   width: 370px;
   height: 16px;
   display: flex;
@@ -547,19 +547,20 @@
 }
 
 /* Viewport runs to the panel edge so a fifth thumb peeks through clipped;
-   14px of headroom keeps the corner icons and their shadows unclipped */
+   the extra left/top room keeps the selection ring, corner icons and their
+   shadows unclipped, and the bottom rows fit the type labels */
 .drafts-carousel {
   position: absolute;
-  left: 20px;
+  left: 18px;
   right: 0;
-  top: 131px;
-  height: 130px;
+  top: 138px;
+  height: 146px;
   overflow: hidden;
 }
 
 .drafts-track {
   position: absolute;
-  left: 0;
+  left: 2px;
   top: 14px;
   display: flex;
   align-items: center;
@@ -577,6 +578,10 @@
   flex-shrink: 0;
 }
 
+.draft-thumb.is-selected {
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.16);
+}
+
 .draft-thumb-img {
   position: absolute;
   inset: 0;
@@ -590,23 +595,53 @@
   filter: brightness(0.9);
 }
 
-/* Ring drawn as an overlay instead of a border so the poster never shifts */
+/* Selection ring floats 2px outside the thumb (v6: 1.5px lavender, radius 10) */
 .draft-thumb.is-selected::after {
   content: '';
   position: absolute;
+  inset: -2px;
+  border: 1.5px solid #aa97ff;
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* Every thumb dims under its centered play glyph; decided ones dim deeper */
+.draft-thumb-dim {
+  position: absolute;
   inset: 0;
-  border: 2px solid var(--accent-bg);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   pointer-events: none;
 }
 
-/* Decided drafts dim under their status icon */
-.draft-thumb-dim {
-  position: absolute;
-  inset: 0;
+.draft-thumb.is-decided .draft-thumb-dim {
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
+}
+
+.draft-thumb-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8.93px;
+  height: 8px;
+  transform: translate(-50%, -50%) rotate(90deg);
   pointer-events: none;
+}
+
+/* Content-type label hanging under the thumb (v6) */
+.draft-thumb-label {
+  position: absolute;
+  left: 0;
+  top: 118px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: normal;
+  color: var(--default-text-subtle);
+  white-space: nowrap;
+}
+
+.draft-thumb.is-selected .draft-thumb-label {
+  color: var(--default-text-base);
 }
 
 /* 28px export whose 20px circle sits at (4,3) with a baked drop shadow:
@@ -649,66 +684,53 @@
   gap: 10px;
 }
 
-/* Flow area between the caption and the footer: divider, Katie's-team
-   pre-checks, then any feedback. Scrolls when it outgrows the space. */
+/* Flow area between the caption and the footer: the Katie's-team pre-check
+   card, then any feedback. Scrolls when it outgrows the space. */
 
 .panel-below {
   position: absolute;
   left: 20px;
   width: 370px;
-  top: 371px;
+  top: 402px;
   bottom: 112px;
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
-.panel-below-divider {
-  width: 100%;
-  margin-bottom: 12px;
+/* Pre-check card (v6: grey card, green 12px ticks) */
+.precheck {
+  background: #f9f9f9;
+  border: 1px solid #efefef;
+  border-radius: 12px;
+  padding: 12px 12px 16px;
 }
 
 .precheck-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--default-text-base);
 }
 
 .precheck-list {
   list-style: none;
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .precheck-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 12px;
-  line-height: 16px;
+  line-height: 15px;
   color: var(--default-text-medium);
 }
 
 .precheck-tick {
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: #e8f5ee;
-  color: #3caa70;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.precheck-foot {
-  margin-top: 8px;
-  font-size: 11px;
-  line-height: 14px;
-  color: var(--default-text-subtle);
+  width: 10px;
 }
 
 .panel-below .panel-feedback-head {
@@ -807,11 +829,46 @@
   background: #6a4cf0;
 }
 
-/* Decided drafts lock their CTAs — no second action on top */
+/* CTAs sleep while the confirmation overlay runs */
 .footer-changes:disabled,
 .footer-approve:disabled {
   opacity: 0.2;
   cursor: default;
+}
+
+/* Decided drafts swap the CTAs for a status line (v6) */
+.panel-footer.is-decided {
+  height: 82px;
+  background: #f9f9f9;
+  padding: 16px 20px 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-status {
+  font-size: 14px;
+  text-align: center;
+  color: var(--default-text-base);
+}
+
+.footer-status-approved {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.footer-status-approved strong {
+  font-weight: 700;
+}
+
+.footer-status-sent {
+  max-width: 296px;
+  font-weight: 400;
+  line-height: normal;
+  overflow-wrap: break-word;
+}
+
+.footer-status-sent strong {
+  font-weight: 600;
 }
 
 /* ---------- Skeleton loading ---------- */
@@ -943,7 +1000,7 @@
   color: #717171;
 }
 
-/* ---------- Request changes prompt (Figma 12289:172657) ---------- */
+/* ---------- Request changes prompt (Figma 12324:2042, v6) ---------- */
 
 .changes-scrim {
   position: absolute;
@@ -954,18 +1011,17 @@
   animation: approve-fade 0.2s ease;
 }
 
-/* Sheet over the right panel's footprint. Was a fixed 410×486 card; the
-   suggested/quick-fix chip sections made the content mode-dependent, so it
-   now flows (min-height keeps the original footprint). */
+/* Sheet over the right panel's footprint: 410×532 in Figma, grows with the
+   chip wrap. Full-bleed footer, so the card itself carries no padding. */
 .changes-card {
   position: absolute;
   right: 8px;
   bottom: 8px;
   width: 410px;
-  min-height: 486px;
-  padding: 32px 20px 20px;
+  min-height: 532px;
   background: var(--default-bg-body);
   border-radius: 20px;
+  overflow: clip;
   display: flex;
   flex-direction: column;
   animation: changes-slide-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
@@ -978,10 +1034,33 @@
   }
 }
 
+.changes-close {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.changes-close img {
+  width: 12px;
+  height: 12px;
+}
+
+.changes-body {
+  padding: 56px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .changes-icon {
-  align-self: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 999px;
   background: #fff4de;
   display: flex;
@@ -1001,7 +1080,7 @@
 .changes-sub {
   margin-top: 8px;
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 18px;
   color: var(--default-text-medium);
 }
@@ -1011,21 +1090,8 @@
   color: #1c1c1c;
 }
 
-/* "Talk to Katie's team →" — inline escape hatch, link-styled. */
-.changes-katie {
-  padding: 0;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--accent-bg);
-  white-space: nowrap;
-}
-
-.changes-katie:hover {
-  text-decoration: underline;
-}
-
 .changes-textarea {
-  margin-top: 14px;
+  margin-top: 20px;
   width: 100%;
   height: 75px;
   padding: 12px;
@@ -1045,16 +1111,8 @@
   border-color: var(--default-border-strong, #1c1c1c);
 }
 
-.changes-chip-label {
-  margin-top: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--default-text-subtle);
-}
-
 .changes-chips {
-  margin-top: 8px;
+  margin-top: 12px;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -1077,20 +1135,31 @@
   background: #f7f7f7;
 }
 
+/* Full-bleed footer rail: info line above the send CTA (v6) */
 .changes-footer {
   margin-top: auto;
-  padding-top: 16px;
+  width: 100%;
+  background: #fcfcfc;
+  border-top: 1px solid var(--default-border-base);
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
 }
 
-/* One-change-round meta line under the send button (§4, verbatim). */
 .changes-meta {
-  font-size: 11px;
-  line-height: 14px;
-  color: var(--default-text-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--default-text-base);
+}
+
+.changes-meta-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .changes-send {
@@ -1101,27 +1170,18 @@
   font-size: 16px;
   font-weight: 500;
   color: var(--default-text-inverse);
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, background 0.15s ease;
 }
 
 /* Wakes up on the first typed letter */
 .changes-send:disabled {
-  opacity: 0.2;
+  background: var(--default-border-subtle);
+  opacity: 0.7;
   cursor: default;
 }
 
 .changes-send:not(:disabled):hover {
   background: #000;
-}
-
-.changes-cancel {
-  width: 168px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--default-bg-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--default-text-base);
 }
 
 
@@ -1231,8 +1291,4 @@
 
 .celebrate-cta:hover {
   opacity: 0.9;
-}
-
-.changes-chip-emoji {
-  margin-right: 4px;
 }

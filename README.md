@@ -35,21 +35,27 @@ silent Ken Burns MP4s from the Figma campaign photos with `ffmpeg-static`
 - **Draft navigation** — the circular arrows flanking the video step through
   the current creator's drafts (badge, caption, duration and per-draft
   feedback follow), and the "Drafts (n)" thumbnails jump straight to any
-  draft (selected thumb shows a purple ring). With more than four drafts the
-  row becomes a carousel — the fifth thumb peeks clipped at the panel edge
-  and the small arrows beside the header page it; it auto-scrolls to keep
-  the selected draft visible. Arrow keys work too when not typing.
+  draft. Every thumb carries a centered play glyph, a dim overlay, and a
+  content-type label underneath (IG Reel / IG Story / TikTok); the selected
+  thumb gets a floating lavender ring, a drop shadow, and a dark label. With
+  more than four drafts the row becomes a carousel — the fifth thumb peeks
+  clipped at the panel edge and the small arrows beside the header page it;
+  it auto-scrolls to keep the selected draft visible. Arrow keys work too
+  when not typing.
 - **Creator pager** — the ‹ n/4 › pager in the panel's "Review" header flips
   between creators; arrows disable at either end of the queue.
 - **Decisions** — Approve / Request changes decide the current draft, stamp
   its thumbnail (green check / orange changes icon), and advance to the next
-  undecided draft. Decided drafts lock their CTAs at 20% opacity — no second
-  action on top. A creator's dashboard row updates once every draft is
-  decided.
+  undecided draft. Revisiting a decided draft swaps the footer CTAs for a
+  status rail: "🎉 Approved" or "Request sent to {name} — we'll email you
+  when the new draft is ready." A creator's dashboard row updates once every
+  draft is decided.
 - **Request changes prompt** — a slide-up sheet over the right panel with an
-  autofocused note box, quick-fill chips (Caption tweak, Different cover
-  frame, …), and a Send button that wakes on the first typed character.
-  Sending records the note as feedback, plays the animated check
+  autofocused note box, one wrap of quick-fill chips (the clip's caption-aware
+  suggestions plus Caption tweak, Different cover frame, Text on screen, Trim
+  or reorder clips — each fills a starter sentence), an "ⓘ One change round
+  included" footer note, and a Send button that wakes on the first typed
+  character. Sending records the note as feedback, plays the animated check
   ("Changes requested"), then locks the draft.
 - **Dashboard** — clicking a creator row with a submission reopens the
   review at that creator; Esc or the × closes it.

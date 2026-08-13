@@ -9,21 +9,15 @@ import type { VideoApi } from './VideoPane'
 
 /**
  * Quick-fix chips in the "Request changes" sheet — SHARED, identical in both
- * modes (Julia's spec §2c). The composer steers brands to edits, never
- * re-filming.
+ * modes. Order and labels from the v6 sheet (Figma 12324:2042); each fills a
+ * starter sentence into the composer.
  */
 const QUICK_FIXES = [
-  { emoji: '✏️', label: 'Caption tweak', fill: 'Could the caption also mention …' },
-  { emoji: '🖼', label: 'Different cover frame', fill: 'Could the cover be a different frame — maybe …' },
-  { emoji: '✂️', label: 'Trim or reorder clips', fill: 'Could the clips be reordered so … opens?' },
-  { emoji: '🔤', label: 'Text on screen', fill: 'Could the on-screen text say … instead?' },
+  { label: 'Caption tweak', fill: 'Could the caption also mention …' },
+  { label: 'Different cover frame', fill: 'Could the cover be a different frame — maybe …' },
+  { label: 'Text on screen', fill: 'Could the on-screen text say … instead?' },
+  { label: 'Trim or reorder clips', fill: 'Could the clips be reordered so … opens?' },
 ]
-
-/** Composer textarea placeholder, by mode (§2b, verbatim). */
-const PLACEHOLDERS: Record<CollabMode, string> = {
-  local: 'e.g. “Could the caption mention the hot-stone add-on?”',
-  product: 'e.g. “Could the caption mention it’s reef-safe?”',
-}
 
 /** Drafts carousel geometry: 85px thumbs, 10px gap, viewport from x=20 to the panel edge. */
 const THUMB_STEP = 95
@@ -90,8 +84,10 @@ export function ReviewModal({
   // Once a draft is decided its CTAs stay locked — no second decision on top.
   const decided = decisions[clip.id]
 
-  // Re-shoot education line by mode (§2a, verbatim).
-  const reshootAsk = mode === 'local' ? `${creator.firstName} would need another visit` : 'she’d have to re-film from scratch'
+  // Re-shoot education tail by mode: local verbatim from the v6 sheet mock;
+  // product keeps Julia's §2a product-vocabulary ask in the same sentence shape.
+  const refilmTail =
+    mode === 'local' ? 'Creators would need another visit.' : 'Creators would need to re-film from scratch.'
 
   // With more than four drafts the row overflows the panel; arrows page it.
   const maxDraftScroll = Math.max(
@@ -310,21 +306,21 @@ export function ReviewModal({
                 {creator.clips.map((c, i) => (
                   <button
                     key={c.id}
-                    className={`draft-thumb${i === clipIdx ? ' is-selected' : ''}`}
+                    className={`draft-thumb${i === clipIdx ? ' is-selected' : ''}${decisions[c.id] ? ' is-decided' : ''}`}
                     title={`Draft ${i + 1}`}
                     onClick={() => onSelectClip(i)}
                   >
                     <img src={c.poster} alt="" className="draft-thumb-img" />
+                    <span className="draft-thumb-dim" />
+                    <img src="/assets/icons/thumb-play.svg" alt="" className="draft-thumb-play" />
                     {decisions[c.id] && (
-                      <>
-                        <span className="draft-thumb-dim" />
-                        <img
-                          src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
-                          alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
-                          className="draft-thumb-icon"
-                        />
-                      </>
+                      <img
+                        src={`/assets/icons/${decisions[c.id] === 'approved' ? 'draft-approved' : 'draft-changes'}.svg`}
+                        alt={decisions[c.id] === 'approved' ? 'Approved' : 'Changes requested'}
+                        className="draft-thumb-icon"
+                      />
                     )}
+                    <span className="draft-thumb-label">{c.badge}</span>
                   </button>
                 ))}
               </div>
@@ -349,18 +345,16 @@ export function ReviewModal({
           {/* Pre-checks + feedback share the flow area under the caption */}
           {skeleton !== 'full' && (
             <div className="panel-below">
-              <img src="/assets/misc/line-divider.svg" alt="" className="panel-below-divider" />
               <div className="precheck">
                 <p className="precheck-title">Katie’s team pre-checked</p>
                 <ul className="precheck-list">
                   {clip.checks.map((check) => (
                     <li key={check} className="precheck-item">
-                      <span className="precheck-tick">✓</span>
+                      <img src="/assets/icons/precheck-tick.svg" alt="" className="precheck-tick" />
                       {check}
                     </li>
                   ))}
                 </ul>
-                <p className="precheck-foot">Checked against your brief before it reached you</p>
               </div>
               {messages.length > 0 && (
                 <>
@@ -379,28 +373,42 @@ export function ReviewModal({
             </div>
           )}
 
-          <div className="panel-footer">
-            {!decided && !confirming && (
-              <p className="panel-nudge">
-                {creator.firstName}’s excited to post — most brands review within a day or two 💛
+          {/* Footer: CTAs while undecided; a status line once the draft is decided (v6) */}
+          <div className={`panel-footer${decided ? ' is-decided' : ''}`}>
+            {decided === 'approved' ? (
+              <p className="footer-status footer-status-approved">
+                <strong>🎉 </strong>Approved
               </p>
+            ) : decided === 'changes' ? (
+              <p className="footer-status footer-status-sent">
+                <strong>Request sent </strong>to {creator.firstName} — we’ll email you when the new
+                draft is ready.
+              </p>
+            ) : (
+              <>
+                {!confirming && (
+                  <p className="panel-nudge">
+                    {creator.firstName}’s excited to post — most brands review within a day or two 💛
+                  </p>
+                )}
+                <div className="panel-footer-cta">
+                  <button
+                    className="footer-changes"
+                    disabled={!!confirming}
+                    onClick={() => setChangesOpen(true)}
+                  >
+                    Request changes
+                  </button>
+                  <button
+                    className="footer-approve"
+                    disabled={!!confirming}
+                    onClick={() => confirmDecision('approved')}
+                  >
+                    Approve
+                  </button>
+                </div>
+              </>
             )}
-            <div className="panel-footer-cta">
-              <button
-                className="footer-changes"
-                disabled={!!decided || !!confirming}
-                onClick={() => setChangesOpen(true)}
-              >
-                Request changes
-              </button>
-              <button
-                className="footer-approve"
-                disabled={!!decided || !!confirming}
-                onClick={() => confirmDecision('approved')}
-              >
-                Approve
-              </button>
-            </div>
           </div>
 
           {confirming && (
@@ -433,55 +441,47 @@ export function ReviewModal({
         {changesOpen && (
           <div className="changes-scrim" onClick={() => setChangesOpen(false)}>
             <div className="changes-card" onClick={(e) => e.stopPropagation()}>
-              <span className="changes-icon">🖊️</span>
-              <p className="changes-title">What should change?</p>
-              <p className="changes-sub">
-                Need something <strong>re-filmed?</strong> That’s a bigger ask — {reshootAsk} — so
-                Katie’s team handles those personally.{' '}
-                <button className="changes-katie">Talk to Katie’s team →</button>
-              </p>
-              <textarea
-                ref={changesRef}
-                className="changes-textarea"
-                placeholder={PLACEHOLDERS[mode]}
-                value={changesText}
-                autoFocus
-                onChange={(e) => setChangesText(e.target.value)}
-                onKeyDown={(e) => {
-                  const isEnter = e.key === 'Enter' || e.key === 'Return' || e.keyCode === 13
-                  if (isEnter && !e.shiftKey) {
-                    e.preventDefault()
-                    submitChanges()
-                  }
-                }}
-              />
-              {clip.suggestions.length > 0 && (
-                <>
-                  <p className="changes-chip-label">Suggested · from her caption</p>
-                  <div className="changes-chips">
-                    {clip.suggestions.map((s) => (
-                      <button key={s.label} className="changes-chip" onClick={() => fillChip(s.fill)}>
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-              <p className="changes-chip-label">Quick fixes · no re-filming</p>
-              <div className="changes-chips">
-                {QUICK_FIXES.map((chip) => (
-                  <button key={chip.label} className="changes-chip" onClick={() => fillChip(chip.fill)}>
-                    <span className="changes-chip-emoji">{chip.emoji}</span> {chip.label}
-                  </button>
-                ))}
+              <button className="changes-close" onClick={() => setChangesOpen(false)} title="Close">
+                <img src="/assets/icons/close-16.svg" alt="" />
+              </button>
+              <div className="changes-body">
+                <span className="changes-icon">🖊️</span>
+                <p className="changes-title">What should change?</p>
+                <p className="changes-sub">
+                  Small tweaks are more welcomed by creators. Need something{' '}
+                  <strong>re-filmed?</strong> That’s a bigger ask<strong>.</strong> {refilmTail}
+                </p>
+                <textarea
+                  ref={changesRef}
+                  className="changes-textarea"
+                  placeholder={`Add your feedback — we’ll pass it straight to ${creator.firstName}`}
+                  value={changesText}
+                  autoFocus
+                  onChange={(e) => setChangesText(e.target.value)}
+                  onKeyDown={(e) => {
+                    const isEnter = e.key === 'Enter' || e.key === 'Return' || e.keyCode === 13
+                    if (isEnter && !e.shiftKey) {
+                      e.preventDefault()
+                      submitChanges()
+                    }
+                  }}
+                />
+                {/* Caption-aware suggestions + shared quick fixes, one flat wrap (v6) */}
+                <div className="changes-chips">
+                  {[...clip.suggestions, ...QUICK_FIXES].map((chip) => (
+                    <button key={chip.label} className="changes-chip" onClick={() => fillChip(chip.fill)}>
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="changes-footer">
+                <p className="changes-meta">
+                  <img src="/assets/icons/info-16.svg" alt="" className="changes-meta-icon" />
+                  One change round included
+                </p>
                 <button className="changes-send" disabled={!changesText.trim()} onClick={submitChanges}>
                   Send to {creator.firstName}
-                </button>
-                <p className="changes-meta">Goes straight to her · one change round included</p>
-                <button className="changes-cancel" onClick={() => setChangesOpen(false)}>
-                  Keep reviewing
                 </button>
               </div>
             </div>
