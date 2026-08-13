@@ -27,7 +27,9 @@
 .review-stage {
   position: absolute;
   inset: 0;
-  background: #fff;
+  /* lavender sampled from the gradient edge — any pixel the bg image
+     doesn't cover blends in instead of flashing white */
+  background: #b593e8;
   /* clip (not hidden): the stage must never become scrollable, or
      focus/scrollIntoView would shift the whole layout */
   overflow: clip;
@@ -42,10 +44,12 @@
 
 .stage-gradient {
   position: absolute;
-  left: -27.26%;
-  top: -38.87%;
-  width: 154.53%;
-  height: 158.67%;
+  /* Figma placement + 5% bleed on every side so the rounded clip
+     always eats into the gradient, never past its edge */
+  left: -32.26%;
+  top: -43.87%;
+  width: 164.53%;
+  height: 168.67%;
   max-width: none;
 }
 
