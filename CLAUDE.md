@@ -107,9 +107,10 @@ clips as stand-ins.
   10px type label hanging at top 118 (`clip.badge`; #aaa, selected #1c1c1c);
   selected = 1.5px #aa97ff ring with a 2px CLEAR GAP off every side (::after
   inset -3.5, radius 12) + 0 4 12 shadow; decided thumbs deepen the dim to
-  0.3 + status icon in the top-right corner (28px SVG at top 1/right 0 →
-  20px circle at 4/4, shadow baked into the export — `draft-approved.svg` /
-  `draft-changes.svg`). `.panel-below` holds the pre-check grey card
+  0.3 + status icon in the top-right corner (`draft-approved.svg` /
+  `draft-changes.svg`: 20px circle at 4/4, shadow via CSS drop-shadow — the
+  baked SVG filter was stripped because Safari renders Figma's drop-shadow
+  filters as giant white squircles). `.panel-below` holds the pre-check grey card
   (`.precheck`: #f9f9f9, 1px #efefef, radius 12, green `precheck-tick.svg`
   ticks — no foot line since v6) then the Feedback list, ONLY when the draft
   has notes; no composer in the panel. Footer: undecided = Request changes /
@@ -192,6 +193,11 @@ clips as stand-ins.
    panel footer). Browsers snap sub-pixel borders away, so they paint as nothing.
    Always use `1px solid var(--default-border-base)` — that's what every other
    divider in the app uses. Deliberate deviation from the Figma px value.
+8. Safari renders Figma-exported SVG drop-shadow `<filter>`s as giant opaque
+   white squircles (fine in Chromium — it only showed up on the deployed
+   site). Strip the filter from the export, crop the viewBox to the artwork,
+   and draw the shadow with CSS `filter: drop-shadow(...)` (blur radius =
+   2× the filter's stdDeviation).
 
 ## Decisions log (chronological)
 
