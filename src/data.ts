@@ -326,11 +326,12 @@ const productQueue: Creator[] = [
     ],
   },
   {
+    // id + clip files stay `julian-*` (same precedent as carter's jasper-* clips)
     id: 'julian',
-    name: 'Julian Long',
-    firstName: 'Julian',
+    name: 'Naomi Long',
+    firstName: 'Naomi',
     handle: '@maya.skin',
-    avatar: '/assets/avatars/julian.png',
+    avatar: '/assets/avatars/naomi.png',
     clips: [
       {
         id: 'julian-1',
@@ -340,7 +341,7 @@ const productQueue: Creator[] = [
         duration: 8,
         caption: [
           [
-            { text: 'Asked my barber, asked my dermatologist — both said ' },
+            { text: 'Asked my stylist, asked my dermatologist — both said ' },
             { text: '@holapikora', tone: 'mention' },
             { text: ' 💈 Full review in the comments.' },
           ],
@@ -564,9 +565,9 @@ const productRows: DashboardRow[] = [
     orderTone: 'green',
   },
   {
-    name: 'Julian Long',
+    name: 'Naomi Long',
     sub: '@maya.skin',
-    avatar: '/assets/avatars/julian.png',
+    avatar: '/assets/avatars/naomi.png',
     status: '📬 Delivered yesterday',
     reviewId: null,
     order: 'Order shipped',
@@ -630,9 +631,9 @@ const localRows: DashboardRow[] = [
     orderTone: 'green',
   },
   {
-    name: 'Julian Long',
+    name: 'Naomi Long',
     sub: '@maya.skin',
-    avatar: '/assets/avatars/julian.png',
+    avatar: '/assets/avatars/naomi.png',
     status: '📅 Visiting tomorrow at 2pm',
     reviewId: null,
     order: 'Confirmed',
