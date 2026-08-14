@@ -360,7 +360,7 @@ export function ReviewModal({
               {messages.length > 0 && (
                 <>
                   <div className="panel-feedback-head">
-                    <p className="panel-feedback-title">Feedback</p>
+                    <p className="panel-feedback-title">Your feedback</p>
                   </div>
                   <div className="feedback-list">
                     {messages.map((m) => (
