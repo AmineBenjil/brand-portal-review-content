@@ -682,9 +682,10 @@
   color: var(--default-text-base);
 }
 
+/* Same title/body rhythm as the Caption section: 4px under the 12px label */
 .feedback-list {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 4px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -759,9 +760,8 @@
 .feedback-message-text {
   flex: 1;
   min-width: 0;
-  padding-top: 2px;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: normal;
   color: #1c1c1c;
   overflow-wrap: break-word;
 }
