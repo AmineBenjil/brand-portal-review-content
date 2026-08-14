@@ -787,22 +787,24 @@
   gap: 12px;
 }
 
+/* Figma 12336:4956 — plain text CTA: no fill, no border, 0.8 opacity */
 .footer-changes {
   flex: 1;
   min-width: 0;
-  height: 46px;
-  background: var(--default-bg-body);
-  border: 1px solid var(--default-border-subtle);
+  height: 44px;
+  background: none;
+  border: none;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 500;
   color: var(--default-text-base);
+  opacity: 0.8;
   white-space: nowrap;
   transition: opacity 0.15s ease;
 }
 
 .footer-changes:not(:disabled):hover {
-  background: #f7f7f7;
+  opacity: 1;
 }
 
 .footer-approve {

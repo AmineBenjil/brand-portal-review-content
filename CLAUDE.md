@@ -115,7 +115,9 @@ clips as stand-ins.
   ticks — no foot line since v6) then the Feedback list, ONLY when the draft
   has notes; no composer in the panel. Footer: undecided = Request changes /
   Approve CTAs (disabled only while confirming; the waiting nudge was
-  removed); decided = `.is-decided` grey rail (h82, #f9f9f9) with
+  removed). Request changes is a plain text button (Figma `12336:4956`: no
+  bg/border, h44, 0.8 opacity → 1 on hover); decided = `.is-decided` grey
+  rail (h82, #f9f9f9) with
   "🎉 Approved" (🎉 bold, text medium) or "Request sent to {name} — we'll
   email you when the new draft is ready." (296px wrap, lead semibold) — the
   old 0.2-opacity locked CTAs are gone. 1s skeleton on flips ('full' on
